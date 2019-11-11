@@ -7,6 +7,6 @@ defmodule ParkingWeb.UserView do
   end
 
   def render("user.json", %{user: user}) do
-    %{id: user.id, name: user.name, password: user.password, username: user.username}
+    %{id: user.id, name: user.name, username: user.username}
   end
 end
