@@ -10,7 +10,8 @@ defmodule Parking.MixProject do
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      preferred_cli_env: ["white_bread.run": :test]
     ]
   end
 
@@ -40,7 +41,10 @@ defmodule Parking.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+      {:pbkdf2_elixir, "~> 1.0"},
+      {:hound, "~> 1.0"},
+      {:white_bread, "~> 4.5", only: [:test]}
     ]
   end
 
