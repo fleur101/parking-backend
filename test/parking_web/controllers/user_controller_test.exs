@@ -40,4 +40,44 @@ defmodule ParkingWeb.UserControllerTest do
       assert json_response(conn, 400)["errors"] != %{}
     end
   end
+
+  describe "login user" do
+    @valid_login_attrs %{
+      username: "paul33",
+      password: "paulpassword"
+    }
+    @incorrect_password_attrs %{
+      username: "paul33",
+      password: "invalidpassword"
+    }
+    @incorrect_username_attrs %{
+      username: "paul333",
+      password: "paulpassword"
+    }
+    @invalid_fields_attrs %{
+      username: nil,
+      password: nil
+    }
+
+    test "logs in when data is valid", %{conn: conn} do
+      conn = post(conn, Routes.sesion_path(conn, :create), user: @valid_login_attrs)
+      assert %{"id" => id} = json_response(conn, 201)["data"]
+      # TODO: add header test
+    end
+
+    test "returns error when incorrect password is entered", %{conn: conn} do
+      conn = post(conn, Routes.sesion_path(conn, :create), user: @incorrect_password_attrs)
+      assert json_response(conn, 400)["errors"] != %{}
+    end
+
+    test "returns error if user does not exist", %{conn: conn} do
+      conn = post(conn, Routes.sesion_path(conn, :create), user: @incorrect_username_attrs)
+      assert json_response(conn, 400)["errors"] != %{}
+    end
+
+    test "returns error if data is invalid", %{conn: conn} do
+      conn = post(conn, Routes.sesion_path(conn, :create), user: @invalid_fields_attrs)
+      assert json_response(conn, 400)["errors"] != %{}
+    end
+  end
 end
