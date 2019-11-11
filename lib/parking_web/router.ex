@@ -5,7 +5,8 @@ defmodule ParkingWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", ParkingWeb do
+  scope "/api/v1", ParkingWeb do
     pipe_through :api
+    post "/register", UserController, :create
   end
 end

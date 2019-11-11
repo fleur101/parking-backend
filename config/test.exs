@@ -12,7 +12,9 @@ config :parking, Parking.Repo,
 # you can enable the server option below.
 config :parking, ParkingWeb.Endpoint,
   http: [port: 4002],
-  server: false
+  server: true
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+config :hound, driver: "chrome_driver"
+config :parking, sql_sandbox: true
