@@ -14,6 +14,12 @@ defmodule ParkingWeb.ChangesetView do
   def render("error.json", %{changeset: changeset}) do
     # When encoded, the changeset returns its errors
     # as a JSON object. So we just pass it forward.
-    %{errors: translate_errors(changeset)}
+
+    # Changed representation of errors to fit the needs of front-end team
+    listedErrors = translate_errors(changeset)
+              |> Map.to_list
+              |> Enum.map( (fn {name, msgs} -> msgs |> Enum.map( (fn x -> Atom.to_string(name) <> " " <> x end) ) end) )
+              |> List.flatten
+    %{errors: listedErrors}
   end
 end
