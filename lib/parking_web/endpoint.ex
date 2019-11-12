@@ -40,5 +40,6 @@ defmodule ParkingWeb.Endpoint do
     key: "_parking_key",
     signing_salt: "s+x2eis4"
 
+  plug CORSPlug, origin: "http://localhost:8080"
   plug ParkingWeb.Router
 end
