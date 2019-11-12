@@ -45,7 +45,8 @@ defmodule Parking.MixProject do
       {:guardian, "~> 1.2"},
       {:pbkdf2_elixir, "~> 1.0"},
       {:hound, "~> 1.0"},
-      {:white_bread, "~> 4.5", only: [:test]}
+      {:white_bread, "~> 4.5", only: [:test]},
+      {:cors_plug, "~> 2.0"},
     ]
   end
 
