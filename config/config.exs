@@ -10,6 +10,10 @@ use Mix.Config
 config :parking,
   ecto_repos: [Parking.Repo]
 
+config :parking, Parking.Guardian,
+  issuer: "parking",
+  secret_key: "0B9VnJ8N2lzx2VYj5hKpAr69bOkBoUwLqC7/VaFD52+6Ewiur+WrfoWzheSzMR88"
+
 # Configures the endpoint
 config :parking, ParkingWeb.Endpoint,
   url: [host: "localhost"],
