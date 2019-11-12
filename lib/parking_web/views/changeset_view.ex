@@ -22,4 +22,8 @@ defmodule ParkingWeb.ChangesetView do
               |> List.flatten
     %{errors: listedErrors}
   end
+
+  def render("error.json", %{errors: errors}) do
+    %{errors: errors}
+  end
 end

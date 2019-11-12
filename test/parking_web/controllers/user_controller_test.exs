@@ -1,7 +1,6 @@
 defmodule ParkingWeb.UserControllerTest do
   use ParkingWeb.ConnCase
 
-  alias Parking.Accounts
   alias Parking.Accounts.User
   alias Parking.Repo
 
@@ -41,38 +40,39 @@ defmodule ParkingWeb.UserControllerTest do
     end
   end
 
-  describe "login user" do
-    @valid_login_attrs %{
-      username: "paul33",
-      password: "paulpassword"
-    }
-    @incorrect_password_attrs %{
-      username: "paul33",
-      password: "invalidpassword"
-    }
-    @incorrect_username_attrs %{
-      username: "paul333",
-      password: "paulpassword"
-    }
-    @invalid_fields_attrs %{
-      username: nil,
-      password: nil
-    }
 
+  @valid_login_attrs %{
+    username: "paul33",
+    password: "paulpassword"
+  }
+  @incorrect_password_attrs %{
+    username: "paul33",
+    password: "invalidpassword"
+  }
+  @incorrect_username_attrs %{
+    username: "paul333",
+    password: "paulpassword"
+  }
+  @invalid_fields_attrs %{
+    username: nil,
+    password: nil
+  }
+
+  describe "login user" do
     test "logs in when data is valid", %{conn: conn} do
       conn = post(conn, Routes.session_path(conn, :create), user: @valid_login_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      assert %{"id" => id} = json_response(conn, 200)["data"]
       # TODO: add header test
     end
 
     test "returns error when incorrect password is entered", %{conn: conn} do
       conn = post(conn, Routes.session_path(conn, :create), user: @incorrect_password_attrs)
-      assert json_response(conn, 400)["errors"] != %{}
+      assert json_response(conn, 401)["errors"] != %{}
     end
 
     test "returns error if user does not exist", %{conn: conn} do
       conn = post(conn, Routes.session_path(conn, :create), user: @incorrect_username_attrs)
-      assert json_response(conn, 400)["errors"] != %{}
+      assert json_response(conn, 401)["errors"] != %{}
     end
 
     test "returns error if data is invalid", %{conn: conn} do

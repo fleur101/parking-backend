@@ -19,4 +19,18 @@ defmodule ParkingWeb.FallbackController do
     |> put_view(ParkingWeb.ErrorView)
     |> render(:"404")
   end
+
+  def call(conn, {:error, :unauthorized_user}) do
+    conn
+    |> put_status(401)
+    |> put_view(ParkingWeb.ErrorView)
+    |> render(:"401")
+  end
+
+  def call(conn, {:error, msg}) when is_list(msg) do
+    conn
+    |> put_status(400)
+    |> put_view(ParkingWeb.ChangesetView)
+    |> render("error.json", errors: msg)
+  end
 end

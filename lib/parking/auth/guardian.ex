@@ -1,5 +1,5 @@
 defmodule Parking.Guardian do
-  use Guardian, otp_app: :takso
+  use Guardian, otp_app: :parking
 
   alias Parking.Accounts.User
   alias Parking.Repo

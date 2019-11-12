@@ -10,10 +10,6 @@ use Mix.Config
 config :parking,
   ecto_repos: [Parking.Repo]
 
-config :parking, Parking.Guardian,
-  issuer: "parking",
-  secret_key: "0B9VnJ8N2lzx2VYj5hKpAr69bOkBoUwLqC7/VaFD52+6Ewiur+WrfoWzheSzMR88"
-
 # Configures the endpoint
 config :parking, ParkingWeb.Endpoint,
   url: [host: "localhost"],
@@ -28,6 +24,10 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+config :parking, Parking.Guardian,
+  issuer: "parking",
+  secret_key: "0B9VnJ8N2lzx2VYj5hKpAr69bOkBoUwLqC7/VaFD52+6Ewiur+WrfoWzheSzMR88"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
