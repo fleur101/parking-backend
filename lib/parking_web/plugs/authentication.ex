@@ -10,12 +10,6 @@ defmodule Parking.Authentication do
     end
   end
 
-  def login(conn, user) do
-    {:ok, jwt, _} = Guardian.encode_and_sign(user)
-    conn
-    |> put_resp_header("Authorization", "Bearer "<>jwt)
-  end
-
   # def logout(conn) do
   #   conn
   #   |> Guardian.Plug.sign_out()
