@@ -1,6 +1,5 @@
 defmodule Parking.Authentication do
   alias Parking.Guardian
-  import Plug.Conn
 
   def check_credentials(user, plain_text_password) do
     if user && Pbkdf2.verify_pass(plain_text_password, user.hashed_password) do
