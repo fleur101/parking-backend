@@ -66,12 +66,12 @@ defmodule ParkingWeb.UserControllerTest do
 
     test "returns error when incorrect password is entered", %{conn: conn} do
       conn = post(conn, Routes.session_path(conn, :create), user: @incorrect_password_attrs)
-      assert json_response(conn, 401)["errors"] != %{}
+      assert json_response(conn, 404)["errors"] != %{}
     end
 
     test "returns error if user does not exist", %{conn: conn} do
       conn = post(conn, Routes.session_path(conn, :create), user: @incorrect_username_attrs)
-      assert json_response(conn, 401)["errors"] != %{}
+      assert json_response(conn, 404)["errors"] != %{}
     end
 
     test "returns error if data is invalid", %{conn: conn} do

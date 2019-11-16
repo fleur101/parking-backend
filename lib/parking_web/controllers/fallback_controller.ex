@@ -22,9 +22,9 @@ defmodule ParkingWeb.FallbackController do
 
   def call(conn, {:error, :unauthorized_user}) do
     conn
-    |> put_status(401)
+    |> put_status(404)
     |> put_view(ParkingWeb.ErrorView)
-    |> render(:"401")
+    |> render(:"404")
   end
 
   def call(conn, {:error, msg}) when is_list(msg) do
