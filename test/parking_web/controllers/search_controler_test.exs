@@ -26,6 +26,11 @@ defmodule ParkingWeb.SearchControllerTest do
   end
 
   describe "interactive search" do
+    test "invalid request", %{conn: conn} do
+      conn = post(conn, Routes.search_path(conn, :search), %{})
+      assert json_response(conn, 400)["errors"] != %{}
+    end
+
     test "search requires a 'parking address'", %{conn: conn} do
       conn = post(conn, Routes.search_path(conn, :search), parking_address: nil)
       assert json_response(conn, 400)["errors"] != %{}
