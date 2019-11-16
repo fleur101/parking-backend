@@ -1,6 +1,5 @@
 defmodule Parking.Authentication do
   alias Parking.Guardian
-  import Plug.Conn
 
   def check_credentials(user, plain_text_password) do
     if user && Pbkdf2.verify_pass(plain_text_password, user.hashed_password) do
@@ -8,12 +7,6 @@ defmodule Parking.Authentication do
     else
       {:error, :unauthorized_user}
     end
-  end
-
-  def login(conn, user) do
-    {:ok, jwt, _} = Guardian.encode_and_sign(user)
-    conn
-    |> put_resp_header("authorization", "Bearer "<>jwt)
   end
 
   # def logout(conn) do
