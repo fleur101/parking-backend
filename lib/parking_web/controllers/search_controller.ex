@@ -19,4 +19,9 @@ defmodule ParkingWeb.SearchController do
     end
   end
 
+  def search(_conn, _) do
+    errors = ["invalid request"]
+    {:error, errors}
+  end
+
 end
