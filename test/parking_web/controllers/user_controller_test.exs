@@ -26,7 +26,7 @@ defmodule ParkingWeb.UserControllerTest do
   describe "register user" do
     test "registers when data is valid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      assert %{"username" => username} = json_response(conn, 201)["data"]
     end
 
     test "returns errors when data is invalid", %{conn: conn} do
@@ -61,8 +61,7 @@ defmodule ParkingWeb.UserControllerTest do
   describe "login user" do
     test "logs in when data is valid", %{conn: conn} do
       conn = post(conn, Routes.session_path(conn, :create), user: @valid_login_attrs)
-      assert %{"id" => id} = json_response(conn, 200)["data"]
-      # TODO: add header test
+      assert %{"data" => %{"username" => username}, "token" => token} = json_response(conn, 200)
     end
 
     test "returns error when incorrect password is entered", %{conn: conn} do
