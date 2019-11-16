@@ -1,4 +1,4 @@
-defmodule ParkingWeb.UserControllerTest do
+defmodule ParkingWeb.SearchControllerTest do
   use ParkingWeb.ConnCase
   alias Parking.Repo
   alias Parking.Sales.Location
@@ -11,8 +11,8 @@ defmodule ParkingWeb.UserControllerTest do
   }
 
   @location2_attrs %{
-    latitude: "58.382311",
-    longitude: "26.728385",
+    latitude: "58.382940",
+    longitude: "26.732479",
     pricing_zone: "B",
     is_available: true
   }
@@ -27,16 +27,19 @@ defmodule ParkingWeb.UserControllerTest do
 
   describe "interactive search" do
     test "search requires a 'parking address'" do
-      conn = post (conn, Routes.search_path(conn, :search), parking_address: nil)
+      conn = post(conn, Routes.search_path(conn, :search))
       assert json_response(conn, 400)["errors"] != %{}
     end
 
-    test "returns all available parking spaces in the distance of 250 meters" do
-
-      conn = post (conn, Routes.search_path(conn, :search), parking_address: "Raatuse 22")
-      assert json_response(conn, 200) == %{
-        "parking_spaces" => [@location2_attrs]
-      }
+    test "returns all available parking spaces in the distance of 250 meters", %{conn: conn} do
+      conn = post(conn, Routes.search_path(conn, :search), parking_address: "Raatuse 22")
+      assert [%{
+          "id" => id,
+          "latitude" => 58.382940,
+          "longitude" => 26.732479,
+          "pricing_zone" => "B",
+          "is_available" => true
+        }] = json_response(conn, 200)
     end
   end
 end

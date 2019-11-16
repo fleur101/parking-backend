@@ -15,7 +15,9 @@ config :parking, ParkingWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "KBIcvZ7vaCNBARLrO8sBjXOcYKr9W18mdHoTeyGfZswcVD1pE8iJ9wErrJxno9O9",
   render_errors: [view: ParkingWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: Parking.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: Parking.PubSub, adapter: Phoenix.PubSub.PG2],
+  googlemaps_key: "<google_maps_key>"
+
 
 # Configures Elixir's Logger
 config :logger, :console,

@@ -8,5 +8,6 @@ defmodule Parking.Repo.Migrations.CreateLocation do
       add :pricing_zone, :string
       add :is_available, :boolean
       timestamps()
+    end
   end
 end
