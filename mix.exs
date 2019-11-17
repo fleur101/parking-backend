@@ -48,7 +48,8 @@ defmodule Parking.MixProject do
       {:white_bread, "~> 4.5", only: [:test]},
       {:cors_plug, "~> 2.0"},
       {:httpoison, "~> 1.6"},
-      {:poison, "~> 3.1"}
+      {:poison, "~> 3.1"},
+      {:timex, "~> 3.5"}
     ]
   end
 
