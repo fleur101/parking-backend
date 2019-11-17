@@ -17,6 +17,6 @@ defmodule ParkingWeb.Router do
     pipe_through :api
     post "/register", UserController, :create
     post "/login", SessionController, :create
-    post "/search_path", SearchController, :search
+    post "/search", SearchController, :search
   end
 end
