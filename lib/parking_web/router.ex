@@ -21,6 +21,7 @@ defmodule ParkingWeb.Router do
 
   scope "/api/v1", ParkingWeb do
     pipe_through [:api, :jwt_authenticated]
+    get "/user", UserController, :show
     post "/search", SearchController, :search
   end
 end

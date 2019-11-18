@@ -15,4 +15,10 @@ defmodule ParkingWeb.UserController do
       |> render("show.json", %{user: user, token: jwt})
     end
   end
+
+  def show(conn, _params) do
+    user = Guardian.Plug.current_resource(conn)
+    conn |> render("user.json", user: user)
+ end
+
 end
