@@ -2,6 +2,8 @@ defmodule ParkingWeb.SearchControllerTest do
   use ParkingWeb.ConnCase
   alias Parking.Repo
   alias Parking.Sales.Location
+  alias Parking.Accounts.User
+  alias Parking.Guardian
 
   @location1_attrs %{
     latitude: "58.377361",
@@ -17,12 +19,27 @@ defmodule ParkingWeb.SearchControllerTest do
     is_available: true
   }
 
+  @user_attrs %{
+    username: "zohaib94",
+    email: "zohaibahmedbutt@gmail.com",
+    name: "Zohaib Ahmed",
+    password: "password"
+  }
+
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
     Repo.delete_all(Location)
+    Repo.delete_all(User)
+
     Location.changeset(%Location{}, @location1_attrs) |> Repo.insert!()
     Location.changeset(%Location{}, @location2_attrs) |> Repo.insert!()
-    :ok
+    User.changeset(%User{}, @user_attrs) |> Repo.insert!()
+
+    user = Repo.one(User)
+
+    {:ok, jwt, _} = Guardian.encode_and_sign(user)
+
+    connection = conn |> put_req_header("accept", "application/json") |> put_req_header("authorization", "bearer: " <> jwt)
+    {:ok, conn: connection}
   end
 
   describe "interactive search" do
