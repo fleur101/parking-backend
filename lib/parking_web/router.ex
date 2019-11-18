@@ -5,7 +5,7 @@ defmodule ParkingWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :browser_auth do
+  pipeline :jwt_authenticated do
     plug Parking.AuthPipeline
   end
 
@@ -17,6 +17,10 @@ defmodule ParkingWeb.Router do
     pipe_through :api
     post "/register", UserController, :create
     post "/login", SessionController, :create
+  end
+
+  scope "/api/v1", ParkingWeb do
+    pipe_through [:api, :jwt_authenticated]
     post "/search", SearchController, :search
   end
 end
