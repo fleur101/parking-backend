@@ -1,8 +1,8 @@
 defmodule ParkingWeb.SearchView do
   use ParkingWeb, :view
+  alias Parking.Sales
 
-  def render("search_results.json", %{locations: locations}) do
-    locations
-    |> Enum.map(fn l -> %{id: l.id, latitude: l.latitude, longitude: l.longitude, pricing_zone: l.pricing_zone, is_available: l.is_available} end)
+  def render("search_results.json", %{locations: locations, end_time: end_time}) do
+    Sales.format_search_response(locations, end_time)
   end
 end
