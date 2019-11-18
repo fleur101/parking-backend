@@ -11,11 +11,19 @@ defmodule ParkingWeb.SearchController do
     {:error, errors}
   end
 
+  def search(conn, %{"parking_address" => parking_address, "end_time" => end_time}) do
+    with {:ok, locations} <- Sales.find_parking_spaces(parking_address) do
+    conn
+      |> put_status(200)
+      |> render("search_results.json", locations: locations, end_time: end_time)
+    end
+  end
+
   def search(conn, %{"parking_address" => parking_address}) do
     with {:ok, locations} <- Sales.find_parking_spaces(parking_address) do
     conn
       |> put_status(200)
-      |> render("search_results.json", locations: locations)
+      |> render("search_results.json", locations: locations, end_time: false)
     end
   end
 
