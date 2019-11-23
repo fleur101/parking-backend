@@ -5,6 +5,9 @@ pipelines:
     '**':
       - step:
           name: Build and Test
+          caches:
+            - deps
+            - build
           script:
             - MIX_ENV=test mix deps.get
             - MIX_ENV=test mix ecto.reset
@@ -15,6 +18,9 @@ pipelines:
     master:
       - step:
           name: Build and Test
+          caches:
+            - deps
+            - build
           script:
             - MIX_ENV=test mix deps.get
             - MIX_ENV=test mix ecto.reset
@@ -25,3 +31,6 @@ definitions:
   services:
     database:
       image: postgres
+  caches:
+    deps: deps
+    build: _build
