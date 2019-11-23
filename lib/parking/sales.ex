@@ -13,14 +13,24 @@ defmodule Parking.Sales do
   Finds a location.
 
   """
-  def find_parking_spaces(parking_address) do
-    %{lat1: lat1, lat2: lat2, lng1: lng1, lng2: lng2} = Parking.Geolocation.find_location(parking_address)
-    query = from l in Location,
+  def find_location_within_coordinates(lat1, lat2, lng1, lng2) do
+    from l in Location,
     where: (l.latitude >= ^lat1 and l.latitude <= ^lat2)
              and (l.longitude >= ^lng1 and l.longitude <= ^lng2)
              and l.is_available == true,
     select: l
+  end
+
+  def find_parking_spaces(parking_address) do
+    %{lat1: lat1, lat2: lat2, lng1: lng1, lng2: lng2} = Parking.Geolocation.find_location(parking_address)
+    query = find_location_within_coordinates(lat1, lat2, lng1, lng2)
     {:ok, Repo.all(query)}
+  end
+
+  def find_parking_spaces_by_coordinates(latitude, longitude, offset) do
+    %{lat1: lat1, lat2: lat2, lng1: lng1, lng2: lng2} = Parking.Geolocation.find_new_coords(latitude, longitude, offset)
+    query = find_location_within_coordinates(lat1, lat2, lng1, lng2)
+    Repo.all(query)
   end
 
   def get_hourly_price_of(location, start_time, end_time) do
