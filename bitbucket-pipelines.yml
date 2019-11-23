@@ -1,0 +1,27 @@
+image: bitwalker/alpine-elixir
+
+pipelines:
+  pull-requests:
+    '**':
+      - step:
+          name: Build and Test
+          script:
+            - MIX_ENV=test mix deps.get
+            - MIX_ENV=test mix ecto.reset
+            - MIX_ENV=test mix test
+          services:
+            - database
+  branches:
+    master:
+      - step:
+          name: Build and Test
+          script:
+            - MIX_ENV=test mix deps.get
+            - MIX_ENV=test mix ecto.reset
+            - MIX_ENV=test mix test
+          services:
+            - database
+definitions:
+  services:
+    database:
+      image: postgres
