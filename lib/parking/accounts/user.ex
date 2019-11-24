@@ -1,12 +1,14 @@
 defmodule Parking.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Parking.Sales.Booking
 
   schema "users" do
     field :name, :string
     field :username, :string
     field :password, :string, virtual: true
     field :hashed_password, :string
+    has_many :bookings, Booking
     timestamps()
   end
 
