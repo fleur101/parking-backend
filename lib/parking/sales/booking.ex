@@ -35,7 +35,7 @@ defmodule Parking.Sales.Booking do
   end
 
   def format_time(time_string) do
-    {:ok, start_time, 0} = DateTime.from_iso8601(time_string)
+    {:ok, start_time, _} = DateTime.from_iso8601(time_string)
     DateTime.truncate(start_time, :second)
   end
 
