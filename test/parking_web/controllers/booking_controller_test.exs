@@ -60,8 +60,8 @@ defmodule ParkingWeb.BookingControllerTest do
       user_bookings = length(preloaded_user.bookings)
 
       conn = post(conn, Routes.booking_path(conn, :create), %{
-        latitude: "58.38294",
-        longitude: "26.732479",
+        latitude: 58.38294,
+        longitude: 26.732479,
         start_time: "2017-09-28T18:31:32.223Z",
         end_time: "2017-09-28T19:31:32.223Z",
         pricing_type: "hourly"
@@ -76,8 +76,8 @@ defmodule ParkingWeb.BookingControllerTest do
 
     test "No available parking space present", %{conn: conn} do
       conn = post(conn, Routes.booking_path(conn, :create), %{
-        latitude: "59.39439",
-        longitude: "24.6690273",
+        latitude: 59.39439,
+        longitude: 24.6690273,
         start_time: "2017-09-28T18:31:32.223Z",
         end_time: "2017-09-28T19:31:32.223Z",
         pricing_type: "hourly"

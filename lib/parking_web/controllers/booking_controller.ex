@@ -1,8 +1,6 @@
 defmodule ParkingWeb.BookingController do
   use ParkingWeb, :controller
 
-  alias Parking.Accounts
-  alias Parking.Accounts.User
   alias Parking.Guardian
   alias Parking.Sales.Booking
 
@@ -22,10 +20,6 @@ defmodule ParkingWeb.BookingController do
   end
   def params_present(params) do
     required_params = ["start_time", "end_time", "latitude", "longitude", "pricing_type"]
-
-    case Enum.all?(required_params, fn required_param -> Map.has_key?(params, required_param) end) do
-      true -> Enum.all?(params, fn {_, value} -> value && String.length(value) > 0 end)
-      _ -> false
-    end
+    Enum.all?(required_params, fn required_param -> Map.has_key?(params, required_param) && params[required_param] != nil end)
   end
 end
