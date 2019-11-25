@@ -39,14 +39,10 @@ defmodule Parking.Sales.Booking do
     DateTime.truncate(start_time, :second)
   end
 
-  def format_coordinates(coordinate_string) do
-    String.to_float(coordinate_string)
-  end
-
   def format_booking_params(params) do
     Map.merge(params, %{
-      latitude: format_coordinates(params["latitude"]),
-      longitude: format_coordinates(params["longitude"]),
+      latitude: params["latitude"],
+      longitude: params["longitude"],
       start_time: format_time(params["start_time"]),
       end_time: format_time(params["start_time"]),
       pricing_type: params["pricing_type"]
