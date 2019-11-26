@@ -1,4 +1,4 @@
-Feature: Sending notification to frontend for extending time
+Feature: Extending time
     As a user
     Such that Hourly booking has been booked on parking location and payment has been already made by me
     I want to extend parking time
