@@ -7,6 +7,7 @@ defmodule Parking.Sales do
   alias Parking.Repo
 
   alias Parking.Sales.Location
+  alias Parking.Sales.Booking
 
 
   @doc """
@@ -84,4 +85,20 @@ defmodule Parking.Sales do
       end
     end)
   end
+
+  def update_location_statuses() do
+    thresholdTime = Timex.now |> Timex.subtract(Timex.Duration.from_minutes(2)) |> Timex.to_naive_datetime()
+    results =
+            from(l in Location,
+                join: b in Booking,
+                on: b.location_id == l.id,
+                where: b.pricing_type == "hourly",
+                group_by: b.location_id,
+                having: max(b.end_time) <= ^thresholdTime,
+                select: b.location_id)
+            |> Repo.all()
+    from(l in Location, where: l.id in ^results)
+    |> Repo.update_all([set: [is_available: true]])
+  end
+
 end
