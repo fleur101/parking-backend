@@ -4,8 +4,10 @@ Feature: Updating booking and parking spot statuses
     I want to update parking statuses
 
     Scenario: Make booked hourly space available two minutes before end time
+        Given there is an available parking space
         When I log in to the application
-        And I book the parking location on hourly rate
-        Then Parking location does not appear in search results
-        Then I search for booked parking location 1 minute before booking end time
-        And Parking location appears in search results
+        And I book the parking location on "hourly" rate for "1 hour"
+        And I search for parking locations nearby after "58 minutes"
+        Then the booked parking location appears in search results
+
+
