@@ -21,6 +21,8 @@ defmodule Parking.Sales.Location do
     "B" => 0.8
   }
 
+  @range 1000.0
+
   schema "locations" do
     field :latitude, :float
     field :longitude, :float
@@ -34,6 +36,10 @@ defmodule Parking.Sales.Location do
     struct
     |> cast(params, [:longitude, :latitude, :pricing_zone, :is_available])
     |> validate_required([:longitude, :latitude, :pricing_zone])
+  end
+
+  def get_range do
+    @range
   end
 
   def get_hourly_price_by(pricing_zone) do
@@ -53,6 +59,6 @@ defmodule Parking.Sales.Location do
   end
 
   def get_nearest_locations(latitude, longitude) do
-    Sales.find_parking_spaces_by_coordinates(latitude, longitude, 250.0)
+    Sales.find_parking_spaces_by_coordinates(latitude, longitude, get_range())
   end
 end

@@ -54,7 +54,7 @@ defmodule ParkingWeb.SearchControllerTest do
       assert json_response(conn, 400)["errors"] != %{}
     end
 
-    test "returns all available parking spaces in the distance of 250 meters", %{conn: conn} do
+    test "returns all available parking spaces in the distance of 1000 meters", %{conn: conn} do
       conn = post(conn, Routes.search_path(conn, :search), parking_address: "Raatuse 22")
       assert [%{
           "id" => id,
