@@ -10,6 +10,7 @@ defmodule Parking.Sales.Location do
   alias Parking.Geolocation
   alias Ecto.Changeset
   alias Parking.Sales
+  alias Parking.Sales.ParkingSpace
 
   @hourly_prices %{
     "A" => 2,
@@ -29,13 +30,15 @@ defmodule Parking.Sales.Location do
     field :pricing_zone, :string
     field :is_available, :boolean
     has_many :bookings, Booking
+    belongs_to :parking_space, ParkingSpace
+
     timestamps()
   end
 
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:longitude, :latitude, :pricing_zone, :is_available])
-    |> validate_required([:longitude, :latitude, :pricing_zone])
+    |> cast(params, [:longitude, :latitude, :pricing_zone, :is_available, :parking_space_id])
+    |> validate_required([:longitude, :latitude, :pricing_zone, :is_available])
   end
 
   def get_range do
