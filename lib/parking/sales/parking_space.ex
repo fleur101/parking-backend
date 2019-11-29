@@ -3,6 +3,8 @@ defmodule Parking.Sales.ParkingSpace do
   import Ecto.Changeset
   alias Parking.Sales.PolygonCoordinates
   alias Parking.Sales.Location
+  alias Parking.Sales
+  alias Parking.Repo
 
   schema "parking_spaces" do
     field :description, :string
