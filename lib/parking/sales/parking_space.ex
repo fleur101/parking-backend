@@ -1,10 +1,12 @@
 defmodule Parking.Sales.ParkingSpace do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Parking.Sales.PolygonCoordinates
 
   schema "parking_spaces" do
     field :description, :string
     field :title, :string
+    has_many :polygon_coordinates, PolygonCoordinates
 
     timestamps()
   end
