@@ -6,31 +6,77 @@ defmodule Parking.Sales do
   import Ecto.Query, warn: false
   alias Parking.Repo
 
-  alias Parking.Sales.Location
+  alias Parking.Sales.{Location, ParkingSpace, PolygonCoordinates}
 
 
   @doc """
   Finds a location.
 
   """
-  def find_location_within_coordinates(lat1, lat2, lng1, lng2) do
-    from l in Location,
-    where: (l.latitude >= ^lat1 and l.latitude <= ^lat2)
-             and (l.longitude >= ^lng1 and l.longitude <= ^lng2)
-             and l.is_available == true,
-    select: l
+  def parking_spaces_within_coordinates(lat1, lat2, lng1, lng2) do
+    from pc in PolygonCoordinates,
+    where: (pc.latitude >= ^lat1 and pc.latitude <= ^lat2)
+             and (pc.longitude >= ^lng1 and pc.longitude <= ^lng2),
+    select: pc.parking_space_id,
+    distinct: pc.parking_space_id
   end
 
-  def find_parking_spaces(parking_address) do
+  def parking_spaces_in_range(lat1, lat2, lng1, lng2, end_time) do
+    parking_space_ids = Repo.all(parking_spaces_within_coordinates(lat1, lat2, lng1, lng2))
+
+    parking_space_query = from ps in ParkingSpace,
+                          where: (ps.id in ^parking_space_ids),
+                          select: ps
+
+    parking_spaces = Repo.all(parking_space_query)
+
+    format_parking_space_response(parking_spaces, end_time)
+  end
+
+  def find_parking_spaces(parking_address, end_time) do
     %{lat1: lat1, lat2: lat2, lng1: lng1, lng2: lng2} = Parking.Geolocation.find_location(parking_address)
-    query = find_location_within_coordinates(lat1, lat2, lng1, lng2)
-    {:ok, Repo.all(query)}
+    {:ok, parking_spaces_in_range(lat1, lat2, lng1, lng2, end_time)}
   end
 
   def find_parking_spaces_by_coordinates(latitude, longitude, offset) do
-    %{lat1: lat1, lat2: lat2, lng1: lng1, lng2: lng2} = Parking.Geolocation.find_new_coords(latitude, longitude, offset)
-    query = find_location_within_coordinates(lat1, lat2, lng1, lng2)
-    Repo.all(query)
+    # %{lat1: lat1, lat2: lat2, lng1: lng1, lng2: lng2} = Parking.Geolocation.find_new_coords(latitude, longitude, offset)
+    # query = find_location_within_coordinates(lat1, lat2, lng1, lng2)
+    # Repo.all(query)
+  end
+
+  def format_parking_space_response(parking_spaces, end_time) do
+    parking_spaces = Enum.map(parking_spaces, fn parking_space ->
+      %{
+        title: parking_space.title,
+        locations: get_available_locations_for(parking_space, end_time),
+        polygon_coordinates: get_polygon_coordinates_for(parking_space)
+      }
+    end)
+
+    Enum.filter(parking_spaces, fn parking_space ->
+      length(parking_space.locations) > 0
+    end)
+  end
+
+  def get_polygon_coordinates_for(parking_space) do
+    parking_space = Repo.preload(parking_space, [:polygon_coordinates])
+
+    Enum.map(parking_space.polygon_coordinates, fn polygon_coordinate ->
+      %{
+        latitude: polygon_coordinate.latitude,
+        longitude: polygon_coordinate.longitude
+      }
+    end)
+  end
+
+  def get_available_locations_for(parking_space, end_time) do
+    parking_space = Repo.preload(parking_space, [:locations])
+
+    available_locations = Enum.filter(parking_space.locations, fn location ->
+      location.is_available == true
+    end)
+
+    format_location_response(available_locations, end_time)
   end
 
   def get_hourly_price_of(location, start_time, end_time) do
@@ -59,15 +105,14 @@ defmodule Parking.Sales do
     end
   end
 
-  def format_search_response(locations, end_time) do
+  def format_location_response(locations, end_time) do
     locations |>
     Enum.map(fn location ->
       location_response = %{
                             id: location.id,
-                            latitude: location.latitude,
-                            longitude: location.longitude,
                             pricing_zone: location.pricing_zone,
-                            is_available: location.is_available
+                            is_available: location.is_available,
+                            spot_number: location.spot_number
                           }
 
       if end_time do

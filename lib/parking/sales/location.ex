@@ -25,10 +25,9 @@ defmodule Parking.Sales.Location do
   @range 1000.0
 
   schema "locations" do
-    field :latitude, :float
-    field :longitude, :float
     field :pricing_zone, :string
     field :is_available, :boolean
+    field :spot_number, :string
     has_many :bookings, Booking
     belongs_to :parking_space, ParkingSpace
 
@@ -37,8 +36,8 @@ defmodule Parking.Sales.Location do
 
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:longitude, :latitude, :pricing_zone, :is_available, :parking_space_id])
-    |> validate_required([:longitude, :latitude, :pricing_zone, :is_available])
+    |> cast(params, [:pricing_zone, :is_available, :parking_space_id, :spot_number])
+    |> validate_required([:pricing_zone, :is_available, :spot_number])
   end
 
   def get_range do
