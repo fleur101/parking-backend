@@ -61,10 +61,6 @@ defmodule Parking.Sales.Location do
     Enum.sort_by(locations, fn (location) -> Geolocation.distance_formula(latitude, location.latitude, longitude, location.longitude) end)
   end
 
-  def get_nearest_locations(latitude, longitude) do
-    Sales.find_parking_spaces_by_coordinates(latitude, longitude, get_range())
-  end
-
   def find_by_id_query(id) do
     from location in Location,
     where: (location.id == ^id),

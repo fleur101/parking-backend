@@ -41,12 +41,6 @@ defmodule Parking.Sales do
     {:ok, parking_spaces_in_range(lat1, lat2, lng1, lng2, end_time)}
   end
 
-  def find_parking_spaces_by_coordinates(latitude, longitude, offset) do
-    # %{lat1: lat1, lat2: lat2, lng1: lng1, lng2: lng2} = Parking.Geolocation.find_new_coords(latitude, longitude, offset)
-    # query = find_location_within_coordinates(lat1, lat2, lng1, lng2)
-    # Repo.all(query)
-  end
-
   def format_parking_space_response(parking_spaces, end_time) do
     parking_spaces = Enum.map(parking_spaces, fn parking_space ->
       %{
