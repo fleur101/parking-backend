@@ -78,7 +78,7 @@ defmodule ParkingWeb.SearchControllerTest do
           "pricing_zone" => "B",
           "is_available" => true,
           "hourly_price" => 1.0,
-          "realtime_price" => 9.6
+          "realtime_price" => 0.96
         }] = json_response(conn, 200)
     end
   end

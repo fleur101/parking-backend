@@ -43,7 +43,7 @@ defmodule Parking.Sales do
 
     case datetime_diff > 0 do
       false -> 0.0
-      _ -> Float.floor(hourly_cost * (Float.ceil(datetime_diff / (60*60))), 2)
+      _ -> Float.round(hourly_cost * (Float.ceil(datetime_diff / (60*60))), 2)
     end
   end
 
@@ -56,7 +56,7 @@ defmodule Parking.Sales do
 
     case datetime_diff > 0 do
       false -> 0.0
-      _ -> Float.floor(realtime_cost * (Float.ceil(datetime_diff / (5*60))), 2)
+      _ -> Float.round(realtime_cost * (Float.ceil(datetime_diff / (5*60))), 2)
     end
   end
 
