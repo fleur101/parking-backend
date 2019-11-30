@@ -1,7 +1,6 @@
 defmodule Parking.Geolocation do
   alias Parking.Sales.Location
   def find_location(address) do
-    # uri = "https://api.mapbox.com/geocoding/v5/mapbox.places/#{URI.encode(address)}%&key=#{Application.get_env(:parking, :mapbox_key)}"
     uri = "https://maps.googleapis.com/maps/api/geocode/json?address=#{URI.encode(address <> " tartu")}&key=#{ParkingWeb.Endpoint.config(:googlemaps_key)}"
     response = HTTPoison.get! uri
     req = Poison.decode!(response.body)

@@ -11,9 +11,9 @@ defmodule Parking.Application do
       # Start the Ecto repository
       Parking.Repo,
       # Start the endpoint when the application starts
-      ParkingWeb.Endpoint
+      ParkingWeb.Endpoint,
       # Starts a worker by calling: Parking.Worker.start_link(arg)
-      # {Parking.Worker, arg},
+      Parking.Worker
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
