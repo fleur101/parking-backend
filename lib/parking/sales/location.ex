@@ -3,6 +3,7 @@ defmodule Parking.Sales.Location do
   use Timex
 
   import Ecto.Changeset
+  import Ecto.Query
 
   alias Parking.Sales.Booking
   alias Parking.Sales.Location
@@ -62,5 +63,15 @@ defmodule Parking.Sales.Location do
 
   def get_nearest_locations(latitude, longitude) do
     Sales.find_parking_spaces_by_coordinates(latitude, longitude, get_range())
+  end
+
+  def find_by_id_query(id) do
+    from location in Location,
+    where: (location.id == ^id),
+    select: location
+  end
+
+  def find_by_id(id) do
+    Repo.one(find_by_id_query(id))
   end
 end

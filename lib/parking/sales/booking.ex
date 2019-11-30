@@ -41,8 +41,7 @@ defmodule Parking.Sales.Booking do
 
   def format_booking_params(params) do
     Map.merge(params, %{
-      latitude: params["latitude"],
-      longitude: params["longitude"],
+      location_id: String.to_integer(params["location_id"]),
       start_time: format_time(params["start_time"]),
       end_time: format_time(params["start_time"]),
       pricing_type: params["pricing_type"]
@@ -60,16 +59,14 @@ defmodule Parking.Sales.Booking do
   end
 
   def create_booking_for(user, params) do
-    %{latitude: latitude, longitude: longitude, start_time: start_time, end_time: end_time, pricing_type: pricing_type} = format_booking_params(params)
+    %{location_id: location_id, start_time: start_time, end_time: end_time, pricing_type: pricing_type} = format_booking_params(params)
 
-    nearest_locations = Location.get_nearest_locations(latitude, longitude)
+    location = Location.find_by_id(location_id)
 
-    if length(nearest_locations) > 0 do
-      near_spot = Location.sort_by_distances(nearest_locations, longitude, latitude) |> hd
-
+    if (location && location.is_available) do
       multi_transaction = Multi.new |> Multi.run(:booking, fn _repo, _changes ->
-        case Repo.insert(new_booking_struct(user, near_spot, start_time, end_time, pricing_type)) do
-          {:ok, booking} -> Location.make_unavailable(near_spot)
+        case Repo.insert(new_booking_struct(user, location, start_time, end_time, pricing_type)) do
+          {:ok, booking} -> Location.make_unavailable(location)
                             {:ok, Repo.preload(booking, [:location, :user])}
           {:error, _} -> {:error, ["Failed to book parking space"]}
         end
@@ -82,7 +79,7 @@ defmodule Parking.Sales.Booking do
         {:error, _} -> {:error, ["Failed to book parking space"]}
       end
     else
-      {:error, ["All nearby locations are already booked"]}
+      {:error, ["This location is not available at the moment"]}
     end
   end
 
