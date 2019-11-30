@@ -34,7 +34,7 @@ defmodule Parking.Accounts.User do
   defp hash_password(changeset), do: changeset
 
   def get_customer_id_for(user) do
-    if user.customer_id do
+    if (user.customer_id && String.length(user.customer_id) > 0) do
       {:ok, user.customer_id}
     else
       case Stripe.Customer.create(%{email: user.email}) do
