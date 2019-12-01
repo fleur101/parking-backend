@@ -9,11 +9,14 @@ defmodule Parking.Sales.Booking do
   alias Parking.Geolocation
   alias Parking.Repo
   alias Ecto.Multi
+  alias Parking.Sales.Payment
+  alias Ecto.Changeset
 
   use Timex
 
   @payment_statuses %{
-    pending: "pending"
+    pending: "pending",
+    paid: "paid"
   }
 
   schema "bookings" do
@@ -23,6 +26,7 @@ defmodule Parking.Sales.Booking do
     field :start_time, :utc_datetime
     belongs_to :location, Location
     belongs_to :user, User
+    has_many :payments, Payment
 
     timestamps()
   end
@@ -83,4 +87,11 @@ defmodule Parking.Sales.Booking do
     end
   end
 
+  def update_status_to(booking, new_status) do
+    Booking.changeset(booking) |> Changeset.put_change(:payment_status, new_status) |> Repo.update
+  end
+
+  def payment_statuses do
+    @payment_statuses
+  end
 end
