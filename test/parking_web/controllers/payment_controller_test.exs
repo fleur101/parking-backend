@@ -5,12 +5,10 @@ defmodule ParkingWeb.PaymentControllerTest do
   alias Parking.Accounts.User
   alias Parking.Guardian
   alias Parking.Sales.Booking
+  alias Parking.Sales.ParkingSpace
 
-  @location1_attrs %{
-    latitude: "58.3824278",
-    longitude: "26.7291562",
-    pricing_zone: "A",
-    is_available: true
+  @parking_space_params %{
+    title: "Raatuse 25",
   }
 
   @user_attrs %{
@@ -25,7 +23,16 @@ defmodule ParkingWeb.PaymentControllerTest do
     Repo.delete_all(Location)
     Repo.delete_all(User)
 
-    Location.changeset(%Location{}, @location1_attrs) |> Repo.insert!()
+    parking_space = ParkingSpace.changeset(%ParkingSpace{}, @parking_space_params) |> Repo.insert!()
+
+    location_params = %{
+      parking_space_id: parking_space.id,
+      is_available: true,
+      pricing_zone: "A",
+      spot_number: "Parking Spot 1",
+    }
+
+    Location.changeset(%Location{}, location_params) |> Repo.insert!()
     User.changeset(%User{}, @user_attrs) |> Repo.insert!()
 
     location = Repo.one(Location)
