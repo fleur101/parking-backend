@@ -38,7 +38,7 @@ defmodule ParkingWeb.PaymentControllerTest do
     location = Repo.one(Location)
     user = Repo.one(User)
 
-    booking_attrs = %{
+    booking_attrs = %Booking{
       location_id: location.id,
       user_id: user.id,
       payment_status: "pending",
@@ -47,7 +47,7 @@ defmodule ParkingWeb.PaymentControllerTest do
       pricing_type: "hourly"
     }
 
-    Booking.changeset(%Booking{}, booking_attrs) |> Repo.insert!()
+    booking = Repo.insert(booking_attrs)
 
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
@@ -67,14 +67,13 @@ defmodule ParkingWeb.PaymentControllerTest do
     end
 
     test "Make a booking", %{conn: conn} do
-      amount = 3.0
+      amount = 2.0
       booking = Repo.all(Booking) |> hd
       booking_status = booking.payment_status
 
       conn = post(conn, Routes.payment_path(conn, :create), %{
         booking_id: Integer.to_string(booking.id),
         stripe_token: User.test_stripe_token,
-        amount: Float.to_string(amount)
       })
 
       response = json_response(conn, 200)
