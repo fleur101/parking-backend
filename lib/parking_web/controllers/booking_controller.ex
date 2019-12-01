@@ -19,7 +19,7 @@ defmodule ParkingWeb.BookingController do
     end
   end
   def params_present(params) do
-    required_params = ["start_time", "end_time", "latitude", "longitude", "pricing_type"]
+    required_params = ["start_time", "end_time", "location_id", "pricing_type"]
     Enum.all?(required_params, fn required_param -> Map.has_key?(params, required_param) && params[required_param] != nil end)
   end
 end

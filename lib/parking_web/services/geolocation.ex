@@ -1,10 +1,11 @@
 defmodule Parking.Geolocation do
+  alias Parking.Sales.Location
   def find_location(address) do
     uri = "https://maps.googleapis.com/maps/api/geocode/json?address=#{URI.encode(address <> " tartu")}&key=#{ParkingWeb.Endpoint.config(:googlemaps_key)}"
     response = HTTPoison.get! uri
     req = Poison.decode!(response.body)
     %{"lat" => lat, "lng" => lng} = hd(req["results"])["geometry"]["location"]
-    find_new_coords(lat, lng, 250.0)
+    find_new_coords(lat, lng, Location.get_range())
   end
 
   def find_new_coords(lat, lng, distInMeters) do

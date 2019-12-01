@@ -3,21 +3,13 @@ defmodule ParkingWeb.SearchControllerTest do
   alias Parking.Repo
   alias Parking.Sales.Location
   alias Parking.Accounts.User
+  alias Parking.Sales.ParkingSpace
+  alias Parking.Sales.PolygonCoordinates
   alias Parking.Guardian
   use Timex
 
-  @location1_attrs %{
-    latitude: "58.377361",
-    longitude: "26.715302",
-    pricing_zone: "A",
-    is_available: true
-  }
-
-  @location2_attrs %{
-    latitude: "58.382940",
-    longitude: "26.732479",
-    pricing_zone: "B",
-    is_available: true
+  @parking_space_params %{
+    title: "Raatuse 25",
   }
 
   @user_attrs %{
@@ -28,11 +20,32 @@ defmodule ParkingWeb.SearchControllerTest do
   }
 
   setup %{conn: conn} do
+    Repo.delete_all(PolygonCoordinates)
     Repo.delete_all(Location)
+    Repo.delete_all(ParkingSpace)
     Repo.delete_all(User)
 
-    Location.changeset(%Location{}, @location1_attrs) |> Repo.insert!()
-    Location.changeset(%Location{}, @location2_attrs) |> Repo.insert!()
+    parking_space = ParkingSpace.changeset(%ParkingSpace{}, @parking_space_params) |> Repo.insert!()
+
+    location_params = %{
+      parking_space_id: parking_space.id,
+      is_available: true,
+      pricing_zone: "A",
+      spot_number: "Parking Spot 1",
+    }
+
+    polygon_coordinates = [
+      %PolygonCoordinates{
+        parking_space_id: parking_space.id,
+        latitude: 58.382104,
+        longitude: 26.7295357,
+      },
+    ]
+
+    location = Location.changeset(%Location{}, location_params) |> Repo.insert!()
+    Enum.each(polygon_coordinates, fn polygon_coordinate ->
+      Repo.insert!(polygon_coordinate)
+    end)
     User.changeset(%User{}, @user_attrs) |> Repo.insert!()
 
     user = Repo.one(User)
@@ -40,6 +53,7 @@ defmodule ParkingWeb.SearchControllerTest do
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
     connection = conn |> put_req_header("accept", "application/json") |> put_req_header("authorization", "bearer: " <> jwt)
+
     {:ok, conn: connection}
   end
 
@@ -54,15 +68,23 @@ defmodule ParkingWeb.SearchControllerTest do
       assert json_response(conn, 400)["errors"] != %{}
     end
 
-    test "returns all available parking spaces in the distance of 250 meters", %{conn: conn} do
+    test "returns all available parking spaces in the distance of 1000 meters", %{conn: conn} do
       conn = post(conn, Routes.search_path(conn, :search), parking_address: "Raatuse 22")
-      assert [%{
-          "id" => id,
-          "latitude" => 58.382940,
-          "longitude" => 26.732479,
-          "pricing_zone" => "B",
-          "is_available" => true
-        }] = json_response(conn, 200)
+      assert ([
+        %{
+          "locations" => [
+            %{
+              "is_available" => true,
+              "pricing_zone" => "A",
+              "spot_number" => "Parking Spot 1"
+            }
+          ],
+          "polygon_coordinates" => [
+            %{"latitude" => 58.382104, "longitude" => 26.7295357}
+          ],
+          "title" => "Raatuse 25"
+        }
+      ] = json_response(conn, 200))
     end
 
     test "searches nearby places alongwith price estimations", %{conn: conn} do
@@ -71,15 +93,23 @@ defmodule ParkingWeb.SearchControllerTest do
       end_time = Timex.format!(time_after_hour, "%FT%T%:z", :strftime)
 
       conn = post(conn, Routes.search_path(conn, :search), parking_address: "Raatuse 22", end_time: end_time)
-      assert [%{
-          "id" => id,
-          "latitude" => 58.382940,
-          "longitude" => 26.732479,
-          "pricing_zone" => "B",
-          "is_available" => true,
-          "hourly_price" => 1.0,
-          "realtime_price" => 9.6
-        }] = json_response(conn, 200)
+      assert [
+        %{
+          "locations" => [
+            %{
+              "hourly_price" => 2.0,
+              "is_available" => true,
+              "pricing_zone" => "A",
+              "realtime_price" => 1.91,
+              "spot_number" => "Parking Spot 1"
+            }
+          ],
+          "polygon_coordinates" => [
+            %{"latitude" => 58.382104, "longitude" => 26.7295357}
+          ],
+          "title" => "Raatuse 25"
+        }
+      ] = json_response(conn, 200)
     end
   end
 end
