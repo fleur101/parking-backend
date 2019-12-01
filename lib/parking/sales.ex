@@ -44,6 +44,7 @@ defmodule Parking.Sales do
   def format_parking_space_response(parking_spaces, end_time) do
     parking_spaces = Enum.map(parking_spaces, fn parking_space ->
       %{
+        id: parking_space.id,
         title: parking_space.title,
         locations: get_available_locations_for(parking_space, end_time),
         polygon_coordinates: get_polygon_coordinates_for(parking_space)
