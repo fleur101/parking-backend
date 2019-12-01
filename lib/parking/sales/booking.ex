@@ -94,4 +94,17 @@ defmodule Parking.Sales.Booking do
   def payment_statuses do
     @payment_statuses
   end
+
+  def calculate_payment(booking) do
+    booking = Repo.preload(booking, [:location])
+    start_time = Timex.format!(booking.start_time, "%FT%T%:z", :strftime)
+    end_time = Timex.format!(booking.end_time, "%FT%T%:z", :strftime)
+
+    euro_price = case booking.pricing_type do
+      "hourly" -> Sales.get_hourly_price_of(booking.location, start_time, end_time)
+      "realtime" -> Sales.get_realtime_price_of(booking.location, start_time, end_time)
+    end
+
+    euro_price * 100
+  end
 end
