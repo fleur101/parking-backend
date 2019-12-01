@@ -27,7 +27,7 @@ defmodule Parking.Accounts.User do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:name, :username, :password, :customer_id, :email])
-    |> validate_required([:name, :username, :password, :email])
+    |> validate_required([:name, :username, :password])
     |> unique_constraint(:username)
     |> validate_length(:password, min: 8)
     |> hash_password
