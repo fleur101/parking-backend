@@ -5,7 +5,11 @@ defmodule Parking.Accounts.User do
   alias Parking.Accounts.User
   alias Ecto.Changeset
   import Stripe.Customer
+  import Stripe.Token
+  import Stripe.Charge
+  alias Parking.Sales.Payment
   alias Parking.Repo
+  alias Ecto.Multi
 
   schema "users" do
     field :name, :string
@@ -15,6 +19,8 @@ defmodule Parking.Accounts.User do
     field :customer_id, :string
     field :email, :string
     has_many :bookings, Booking
+    has_many :payments, Payment
+
     timestamps()
   end
 
@@ -42,6 +48,39 @@ defmodule Parking.Accounts.User do
         {:ok, response} -> {:ok, user} = user |> Changeset.change(%{customer_id: response.id}) |> Repo.update
                            {:ok, user.customer_id}
       end
+    end
+  end
+
+  def make_payment(params) do
+    {code, charge} = Stripe.Charge.create(%{
+      amount: ceil(params.amount),
+      currency: "EUR",
+      source: params.source
+    })
+
+    case code do
+      :ok -> Multi.new |> Multi.run(:payment, fn _repo, _changes ->
+              payment = Payment.create_from(%{amount: (params.amount/100), booking_id: params.booking.id, user_id: params.user.id, stripe_charge_id: charge.id})
+              Booking.update_status_to(params.booking, Booking.payment_statuses.paid)
+              {:ok, payment}
+          end) |> Repo.transaction
+      _ -> {:error, ["Failed to make payment"]}
+    end
+  end
+
+  def test_stripe_token do
+    {code, sourceToken} = Stripe.Token.create(%{
+      card: %{
+        exp_month: 10,
+        exp_year: 2020,
+        number: 4242424242424242,
+        cvc: 111
+      }
+    })
+
+    case code do
+      :ok -> sourceToken.id
+      _ -> nil
     end
   end
 end
