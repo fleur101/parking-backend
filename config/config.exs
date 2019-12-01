@@ -31,6 +31,9 @@ config :parking, Parking.Guardian,
   issuer: "parking",
   secret_key: "0B9VnJ8N2lzx2VYj5hKpAr69bOkBoUwLqC7/VaFD52+6Ewiur+WrfoWzheSzMR88"
 
+config :stripity_stripe, api_key: "sk_test_vyTzpJEDv5OWVSTSBwLFn4N700fsD1tfSx"
+config :stripity_stripe, hackney_opts: [{:connect_timeout, 1000}, {:recv_timeout, 5000}]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

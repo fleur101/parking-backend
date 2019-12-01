@@ -49,7 +49,9 @@ defmodule Parking.MixProject do
       {:cors_plug, "~> 2.0"},
       {:httpoison, "~> 1.6"},
       {:poison, "~> 3.1"},
-      {:timex, "~> 3.5"}
+      {:timex, "~> 3.5"},
+      {:hackney, "~> 1.0", override: true},
+      {:stripity_stripe, "~> 2.0.0"}
     ]
   end
 
