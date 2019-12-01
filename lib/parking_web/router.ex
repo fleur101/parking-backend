@@ -24,5 +24,6 @@ defmodule ParkingWeb.Router do
     get "/user", UserController, :show
     post "/search", SearchController, :search
     post "/locations/booking", BookingController, :create
+    resources "/payments", PaymentController, only: [:create]
   end
 end
