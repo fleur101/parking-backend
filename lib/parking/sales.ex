@@ -118,6 +118,13 @@ defmodule Parking.Sales do
     |> Repo.all()
   end
 
+  def extend_parking_time(booking_id, end_time) do
+    booking = Repo.get!(Booking, booking_id)
+    changeset = Booking.changeset(booking, %{end_time: end_time})
+    with {:ok, %Booking{} = booking} = Repo.update(changeset) do
+      {:ok, Repo.preload(booking, [:location, :user])}
+    end
+  end
 
 
 end

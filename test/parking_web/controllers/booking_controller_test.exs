@@ -4,6 +4,7 @@ defmodule ParkingWeb.BookingControllerTest do
   alias Parking.Sales.{Location, Booking}
   alias Parking.Accounts.User
   alias Parking.Guardian
+  alias Ecto.Changeset
 
   @location1_attrs %{
     latitude: "58.3824278",
@@ -40,14 +41,14 @@ defmodule ParkingWeb.BookingControllerTest do
     Repo.delete_all(Location)
     Repo.delete_all(User)
 
-    location1 = Location.changeset(%Location{}, @location1_attrs) |> Repo.insert!()
-    location2 = Location.changeset(%Location{}, @location2_attrs) |> Repo.insert!()
+    location = Location.changeset(%Location{}, @location1_attrs) |> Repo.insert!()
+    Location.changeset(%Location{}, @location2_attrs) |> Repo.insert!()
     user = User.changeset(%User{}, @user_attrs) |> Repo.insert!()
 
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
     connection = conn |> put_req_header("accept", "application/json") |> put_req_header("authorization", "bearer: " <> jwt)
-    {:ok, conn: connection, location: location1, user: user}
+    {:ok, conn: connection, location: location, user: user}
   end
 
   describe "POST /api/v1/bookings" do
@@ -95,7 +96,7 @@ defmodule ParkingWeb.BookingControllerTest do
     end
 
     test "Parking time for hourly booking extended until specified end time", %{conn: conn, location: location, user: user} do
-      changeset = Booking.changeset(%Booking{}, Map.merge(%{location_id: location.id, user_id: user.id}, @booking_attrs))
+      changeset = Booking.changeset(%Booking{}, @booking_attrs) |> Changeset.put_assoc(:location, location) |> Changeset.put_assoc(:user, user)
       booking = case Repo.insert(changeset) do
         {:ok, booking} -> booking
         {:error, _} -> {:error, ["Failed to book parking space"]}
