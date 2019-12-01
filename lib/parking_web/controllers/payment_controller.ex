@@ -19,7 +19,7 @@ defmodule ParkingWeb.PaymentController do
     end
   end
   def params_present(params) do
-    required_params = ["booking_id", "stripe_token", "amount"]
+    required_params = ["booking_id", "stripe_token"]
     Enum.all?(required_params, fn required_param -> Map.has_key?(params, required_param) && params[required_param] != nil end)
   end
 end
