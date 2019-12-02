@@ -44,7 +44,7 @@ defmodule Parking.Sales.Booking do
     Map.merge(params, %{
       location_id: params["location_id"],
       start_time: format_time(params["start_time"]),
-      end_time: format_time(params["start_time"]),
+      end_time: format_time(params["end_time"]),
       pricing_type: params["pricing_type"]
     })
   end

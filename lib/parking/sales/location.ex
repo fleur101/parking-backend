@@ -5,13 +5,10 @@ defmodule Parking.Sales.Location do
   import Ecto.Changeset
   import Ecto.Query
 
-  alias Parking.Sales.Booking
-  alias Parking.Sales.Location
+  alias Parking.Sales.{Booking, Location, ParkingSpace}
   alias Parking.Repo
   alias Parking.Geolocation
   alias Ecto.Changeset
-  alias Parking.Sales
-  alias Parking.Sales.ParkingSpace
 
   @hourly_prices %{
     "A" => 2,

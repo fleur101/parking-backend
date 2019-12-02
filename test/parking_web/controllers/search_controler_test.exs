@@ -1,10 +1,8 @@
 defmodule ParkingWeb.SearchControllerTest do
   use ParkingWeb.ConnCase
   alias Parking.Repo
-  alias Parking.Sales.Location
+  alias Parking.Sales.{Location, ParkingSpace, PolygonCoordinates}
   alias Parking.Accounts.User
-  alias Parking.Sales.ParkingSpace
-  alias Parking.Sales.PolygonCoordinates
   alias Parking.Guardian
   use Timex
 

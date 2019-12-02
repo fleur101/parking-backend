@@ -1,6 +1,5 @@
 defmodule ParkingWeb.UserSocket do
   use Phoenix.Socket
-  alias Parking.Accounts
 
   ## Channels
   # channel "room:*", ParkingWeb.RoomChannel
