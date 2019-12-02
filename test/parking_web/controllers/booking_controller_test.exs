@@ -1,12 +1,11 @@
 defmodule ParkingWeb.BookingControllerTest do
   use ParkingWeb.ConnCase
   alias Parking.Repo
-  alias Parking.Sales.Location
+  alias Parking.Sales.{Location, Booking, ParkingSpace, PolygonCoordinates}
   alias Parking.Accounts.User
   alias Parking.Guardian
-  alias Parking.Sales.ParkingSpace
-  alias Parking.Sales.PolygonCoordinates
-  alias Parking.Sales.Booking
+  alias Ecto.Changeset
+
 
   @parking_space_params %{
     title: "Raatuse 25",
@@ -17,6 +16,16 @@ defmodule ParkingWeb.BookingControllerTest do
     email: "zohaibahmedbutt@gmail.com",
     name: "Zohaib Ahmed",
     password: "password"
+  }
+
+  @booking_attrs %{
+    start_time: "2017-09-28T18:31:32.223Z",
+    end_time: "2017-09-28T19:31:32.223Z",
+    pricing_type: "hourly"
+  }
+
+  @booking_update_attrs %{
+    end_time: "2017-09-28T20:31:32.223Z"
   }
 
   setup %{conn: conn} do
@@ -49,15 +58,12 @@ defmodule ParkingWeb.BookingControllerTest do
       Repo.insert!(polygon_coordinate)
     end)
 
-    User.changeset(%User{}, @user_attrs) |> Repo.insert!()
-
-    user = Repo.one(User)
+    user = User.changeset(%User{}, @user_attrs) |> Repo.insert!()
 
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
     connection = conn |> put_req_header("accept", "application/json") |> put_req_header("authorization", "bearer: " <> jwt)
-
-    {:ok, conn: connection}
+    {:ok, conn: connection, location: location, user: user}
   end
 
   describe "POST /api/v1/bookings" do
@@ -110,6 +116,16 @@ defmodule ParkingWeb.BookingControllerTest do
       })
 
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    test "Parking time for hourly booking extended until specified end time", %{conn: conn, location: location, user: user} do
+      changeset = Booking.changeset(%Booking{}, @booking_attrs) |> Changeset.put_assoc(:location, location) |> Changeset.put_assoc(:user, user)
+      booking = case Repo.insert(changeset) do
+        {:ok, booking} -> booking
+        {:error, _} -> {:error, ["Failed to book parking space"]}
+      end
+      conn = patch(conn, Routes.booking_path(conn, :update, booking.id), @booking_update_attrs)
+      assert json_response(conn, 200)
     end
   end
 end

@@ -42,7 +42,7 @@ defmodule ParkingWeb.SearchControllerTest do
       },
     ]
 
-    location = Location.changeset(%Location{}, location_params) |> Repo.insert!()
+    Location.changeset(%Location{}, location_params) |> Repo.insert!()
     Enum.each(polygon_coordinates, fn polygon_coordinate ->
       Repo.insert!(polygon_coordinate)
     end)
@@ -100,7 +100,7 @@ defmodule ParkingWeb.SearchControllerTest do
               "hourly_price" => 2.0,
               "is_available" => true,
               "pricing_zone" => "A",
-              "realtime_price" => 1.91,
+              "realtime_price" => 1.92,
               "spot_number" => "Parking Spot 1"
             }
           ],

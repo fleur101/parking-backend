@@ -20,7 +20,7 @@ defmodule Parking.Sales.Location do
 
   @realtime_prices %{
     "A" => 0.16,
-    "B" => 0.8
+    "B" => 0.08
   }
 
   @range 1000.0

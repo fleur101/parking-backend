@@ -1,10 +1,9 @@
 defmodule Parking.Sales.Payment do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Parking.Sales.Payment
+  alias Parking.Sales.{Payment, Booking}
   alias Parking.Repo
   alias Parking.Accounts.User
-  alias Parking.Sales.Booking
 
   schema "payments" do
     field :amount, :float

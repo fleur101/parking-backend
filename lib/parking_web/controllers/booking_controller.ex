@@ -3,6 +3,7 @@ defmodule ParkingWeb.BookingController do
 
   alias Parking.Guardian
   alias Parking.Sales.Booking
+  alias Parking.Sales
 
   action_fallback ParkingWeb.FallbackController
 
@@ -18,8 +19,15 @@ defmodule ParkingWeb.BookingController do
       conn |> put_status(:bad_request) |> render("error.json", %{errors: ["Some required parameters are missing"]})
     end
   end
+
   def params_present(params) do
     required_params = ["start_time", "end_time", "location_id", "pricing_type"]
     Enum.all?(required_params, fn required_param -> Map.has_key?(params, required_param) && params[required_param] != nil end)
+  end
+
+  def update(conn, %{"id" => id, "end_time" => end_time}) do
+    with {:ok, %Booking{} = booking} <- Sales.extend_parking_time(id, end_time) do
+      conn |> render("create.json", %{booking: booking})
+    end
   end
 end

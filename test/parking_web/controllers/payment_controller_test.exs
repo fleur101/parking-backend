@@ -1,11 +1,9 @@
 defmodule ParkingWeb.PaymentControllerTest do
   use ParkingWeb.ConnCase
   alias Parking.Repo
-  alias Parking.Sales.Location
+  alias Parking.Sales.{Location, Booking, ParkingSpace}
   alias Parking.Accounts.User
   alias Parking.Guardian
-  alias Parking.Sales.Booking
-  alias Parking.Sales.ParkingSpace
 
   @parking_space_params %{
     title: "Raatuse 25",
@@ -47,7 +45,7 @@ defmodule ParkingWeb.PaymentControllerTest do
       pricing_type: "hourly"
     }
 
-    booking = Repo.insert(booking_attrs)
+    Repo.insert(booking_attrs)
 
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 

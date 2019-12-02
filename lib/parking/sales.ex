@@ -6,10 +6,12 @@ defmodule Parking.Sales do
   import Ecto.Query, warn: false
   alias Parking.Repo
 
-  alias Parking.Sales.Location
-  alias Parking.Sales.Booking
+
+  alias Parking.Sales.{Location, Booking}
+  alias Parking.Accounts.User
   alias Parking.Sales.ParkingSpace
   alias Parking.Sales.PolygonCoordinates
+
 
 
   @doc """
@@ -86,7 +88,7 @@ defmodule Parking.Sales do
 
     case datetime_diff > 0 do
       false -> 0.0
-      _ -> Float.floor(hourly_cost * (Float.ceil(datetime_diff / (60*60))), 2)
+      _ -> Float.round(hourly_cost * (Float.ceil(datetime_diff / (60*60))), 2)
     end
   end
 
@@ -99,7 +101,7 @@ defmodule Parking.Sales do
 
     case datetime_diff > 0 do
       false -> 0.0
-      _ -> Float.floor(realtime_cost * (Float.ceil(datetime_diff / (5*60))), 2)
+      _ -> Float.round(realtime_cost * (Float.ceil(datetime_diff / (5*60))), 2)
     end
   end
 
@@ -128,6 +130,7 @@ defmodule Parking.Sales do
     end)
   end
 
+
   def update_location_statuses() do
     thresholdTime = Timex.now |> Timex.subtract(Timex.Duration.from_minutes(2)) |> Timex.to_naive_datetime()
     results =
@@ -142,5 +145,30 @@ defmodule Parking.Sales do
     from(l in Location, where: l.id in ^results)
     |> Repo.update_all([set: [is_available: true]])
   end
+
+  def find_extend_candidates() do
+    thresholdTimeUpper = Timex.now |> Timex.subtract(Timex.Duration.from_minutes(10)) |> Timex.to_naive_datetime()
+    thresholdTimeLower = Timex.shift(thresholdTimeUpper, minutes: -1)
+    results =
+            from(u in User,
+                join: b in Booking,
+                on: b.user_id == u.id,
+                where: b.pricing_type == "hourly",
+                group_by: b.user_id,
+                having: (max(b.end_time) <= ^thresholdTimeUpper) and (max(b.end_time) > ^thresholdTimeLower),
+                select: b.user_id)
+            |> Repo.all()
+    from(u in User, where: u.id in ^results)
+    |> Repo.all()
+  end
+
+  def extend_parking_time(booking_id, end_time) do
+    booking = Repo.get!(Booking, booking_id)
+    changeset = Booking.changeset(booking, %{end_time: end_time})
+    with {:ok, %Booking{} = booking} = Repo.update(changeset) do
+      {:ok, Repo.preload(booking, [:location, :user])}
+    end
+  end
+
 
 end

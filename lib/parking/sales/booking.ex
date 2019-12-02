@@ -3,13 +3,10 @@ defmodule Parking.Sales.Booking do
   import Ecto.Changeset
 
   alias Parking.Accounts.User
-  alias Parking.Sales.Location
-  alias Parking.Sales.Booking
   alias Parking.Sales
-  alias Parking.Geolocation
+  alias Parking.Sales.{Location, Booking, Payment}
   alias Parking.Repo
   alias Ecto.Multi
-  alias Parking.Sales.Payment
   alias Ecto.Changeset
 
   use Timex
