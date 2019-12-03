@@ -158,7 +158,7 @@ defmodule Parking.Sales do
                 having: (max(b.end_time) <= ^thresholdTimeUpper) and (max(b.end_time) > ^thresholdTimeLower),
                 select: b.user_id)
             |> Repo.all()
-    from(u in User, where: u.id in ^results)
+    from(u in User, where: u.id in ^results, select: u.id)
     |> Repo.all()
   end
 
