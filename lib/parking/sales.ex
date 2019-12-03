@@ -132,7 +132,7 @@ defmodule Parking.Sales do
 
 
   def update_location_statuses() do
-    thresholdTime = Timex.now |> Timex.subtract(Timex.Duration.from_minutes(2)) |> Timex.to_naive_datetime()
+    thresholdTime = Timex.now |> Timex.add(Timex.Duration.from_minutes(2))
     results =
             from(l in Location,
                 join: b in Booking,
@@ -147,7 +147,7 @@ defmodule Parking.Sales do
   end
 
   def find_extend_candidates() do
-    thresholdTimeUpper = Timex.now |> Timex.subtract(Timex.Duration.from_minutes(10)) |> Timex.to_naive_datetime()
+    thresholdTimeUpper = Timex.now |> Timex.add(Timex.Duration.from_minutes(10))
     thresholdTimeLower = Timex.shift(thresholdTimeUpper, minutes: -1)
     results =
             from(u in User,
