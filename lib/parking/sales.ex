@@ -43,6 +43,11 @@ defmodule Parking.Sales do
     {:ok, parking_spaces_in_range(lat1, lat2, lng1, lng2, end_time)}
   end
 
+  def find_parking_spaces_by_location(lat, lng, end_time) do
+    %{lat1: lat1, lat2: lat2, lng1: lng1, lng2: lng2} = Parking.Geolocation.find_new_coords(lat, lng, Location.get_range())
+    {:ok, parking_spaces_in_range(lat1, lat2, lng1, lng2, end_time)}
+  end
+
   def format_parking_space_response(parking_spaces, end_time) do
     parking_spaces = Enum.map(parking_spaces, fn parking_space ->
       %{
@@ -63,8 +68,8 @@ defmodule Parking.Sales do
 
     Enum.map(parking_space.polygon_coordinates, fn polygon_coordinate ->
       %{
-        latitude: polygon_coordinate.latitude,
-        longitude: polygon_coordinate.longitude
+        lat: polygon_coordinate.latitude,
+        lng: polygon_coordinate.longitude
       }
     end)
   end
@@ -150,16 +155,11 @@ defmodule Parking.Sales do
     thresholdTimeUpper = Timex.now |> Timex.add(Timex.Duration.from_minutes(10))
     thresholdTimeLower = Timex.shift(thresholdTimeUpper, minutes: -1)
     results =
-            from(u in User,
-                join: b in Booking,
-                on: b.user_id == u.id,
-                where: b.pricing_type == "hourly",
-                group_by: b.user_id,
-                having: (max(b.end_time) <= ^thresholdTimeUpper) and (max(b.end_time) > ^thresholdTimeLower),
-                select: b.user_id)
+            from(b in Booking,
+                where: b.pricing_type == "hourly" and b.end_time <= ^thresholdTimeUpper and b.end_time > ^thresholdTimeLower,
+                select: %{id: b.user_id, booking_id: b.id})
             |> Repo.all()
-    from(u in User, where: u.id in ^results, select: u.id)
-    |> Repo.all()
+    results
   end
 
   def extend_parking_time(booking_id, end_time) do

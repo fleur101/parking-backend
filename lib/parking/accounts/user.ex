@@ -2,11 +2,7 @@ defmodule Parking.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
   alias Parking.Sales.Booking
-  alias Parking.Accounts.User
   alias Ecto.Changeset
-  import Stripe.Customer
-  import Stripe.Token
-  import Stripe.Charge
   alias Parking.Sales.Payment
   alias Parking.Repo
   alias Ecto.Multi

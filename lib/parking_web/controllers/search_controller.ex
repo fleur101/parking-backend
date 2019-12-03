@@ -27,6 +27,23 @@ defmodule ParkingWeb.SearchController do
     end
   end
 
+  def search(conn, %{"longitude" => lng, "lattitude" => lat, "end_time" => end_time}) do
+    with {:ok, locations} <- Sales.find_parking_spaces_by_location(lat, lng, end_time) do
+      conn
+      |> put_status(200)
+      |> render("search_results.json", locations: locations, end_time: false)
+    end
+  end
+
+  def search(conn, %{"longitude" => lng, "lattitude" => lat}) do
+    with {:ok, locations} <- Sales.find_parking_spaces_by_location(lat, lng, nil) do
+      conn
+      |> put_status(200)
+      |> render("search_results.json", locations: locations, end_time: false)
+    end
+  end
+
+
   def search(_conn, _) do
     errors = ["invalid request"]
     {:error, errors}

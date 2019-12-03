@@ -78,7 +78,7 @@ defmodule ParkingWeb.SearchControllerTest do
             }
           ],
           "polygon_coordinates" => [
-            %{"latitude" => 58.382104, "longitude" => 26.7295357}
+            %{"lat" => 58.382104, "lng" => 26.7295357}
           ],
           "title" => "Raatuse 25"
         }
@@ -103,7 +103,7 @@ defmodule ParkingWeb.SearchControllerTest do
             }
           ],
           "polygon_coordinates" => [
-            %{"latitude" => 58.382104, "longitude" => 26.7295357}
+            %{"lat" => 58.382104, "lng" => 26.7295357}
           ],
           "title" => "Raatuse 25"
         }
