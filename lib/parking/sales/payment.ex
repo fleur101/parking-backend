@@ -26,13 +26,13 @@ defmodule Parking.Sales.Payment do
   end
 
   def format_params(user, params) do
-    booking = Repo.get(Booking, String.to_integer(params["booking_id"]))
+    booking = Repo.get(Booking, params["booking_id"])
     payment = Booking.calculate_payment(booking)
 
     %{
       source: params["stripe_token"],
       amount: payment,
-      booking: Repo.get(Booking, String.to_integer(params["booking_id"])),
+      booking: Repo.get(Booking, params["booking_id"]),
       user: user
     }
   end
