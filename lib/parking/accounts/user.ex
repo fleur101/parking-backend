@@ -1,9 +1,9 @@
 defmodule Parking.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Parking.Sales.Booking
+
+  alias Parking.Sales.{Booking, Payment}
   alias Ecto.Changeset
-  alias Parking.Sales.Payment
   alias Parking.Repo
   alias Ecto.Multi
 

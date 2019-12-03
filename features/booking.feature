@@ -1,5 +1,5 @@
 Feature: Booking a parking space
-    As a customer
+    As a user
     Such that I have arrived at my desired destination
     I want to book a nearby parking place
 
