@@ -2,10 +2,11 @@ defmodule Parking.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Parking.Sales.{Booking, Payment}
+  alias Parking.Sales.{Booking, Payment, Location}
   alias Ecto.Changeset
   alias Parking.Repo
   alias Ecto.Multi
+  alias Parking.Accounts.User
 
   schema "users" do
     field :name, :string
@@ -14,6 +15,7 @@ defmodule Parking.Accounts.User do
     field :hashed_password, :string
     field :customer_id, :string
     field :email, :string
+    field :monthly_paying, :boolean
     has_many :bookings, Booking
     has_many :payments, Payment
 
@@ -22,7 +24,7 @@ defmodule Parking.Accounts.User do
 
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :username, :password, :customer_id, :email])
+    |> cast(params, [:name, :username, :password, :customer_id, :email, :monthly_paying])
     |> validate_required([:name, :username, :password])
     |> unique_constraint(:username)
     |> validate_length(:password, min: 8)
@@ -58,6 +60,11 @@ defmodule Parking.Accounts.User do
       :ok -> Multi.new |> Multi.run(:payment, fn _repo, _changes ->
               payment = Payment.create_from(%{amount: (params.amount/100), booking_id: params.booking.id, user_id: params.user.id, stripe_charge_id: charge.id})
               Booking.update_status_to(params.booking, Booking.payment_statuses.paid)
+
+              location_booking = Repo.preload(params.booking, [:location])
+              location = location_booking.location
+
+              Location.make_unavailable(location)
               {:ok, payment}
           end) |> Repo.transaction
       _ -> {:error, ["Failed to make payment"]}
@@ -78,5 +85,9 @@ defmodule Parking.Accounts.User do
       :ok -> sourceToken.id
       _ -> nil
     end
+  end
+
+  def toggle_monthly_payments(user) do
+    user |> Changeset.change(%{monthly_paying: !(user.monthly_paying)}) |> Repo.update
   end
 end
