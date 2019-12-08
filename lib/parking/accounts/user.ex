@@ -8,6 +8,21 @@ defmodule Parking.Accounts.User do
   alias Ecto.Multi
   alias Parking.Accounts.User
 
+  @valid_card_params %{
+    exp_month: 10,
+    exp_year: 2020,
+    number: 4242424242424242,
+    cvc: 111
+  }
+
+  @invalid_card_params %{
+    exp_month: 10,
+    exp_year: 2010,
+    number: 4242424242424242,
+    cvc: 111
+  }
+
+
   schema "users" do
     field :name, :string
     field :username, :string
@@ -73,12 +88,18 @@ defmodule Parking.Accounts.User do
 
   def test_stripe_token do
     {code, sourceToken} = Stripe.Token.create(%{
-      card: %{
-        exp_month: 10,
-        exp_year: 2020,
-        number: 4242424242424242,
-        cvc: 111
-      }
+      card: @valid_card_params
+    })
+
+    case code do
+      :ok -> sourceToken.id
+      _ -> nil
+    end
+  end
+
+  def test_stripe_token_invalid do
+    {code, sourceToken} = Stripe.Token.create(%{
+      card: @invalid_card_params
     })
 
     case code do
