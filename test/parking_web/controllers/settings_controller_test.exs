@@ -1,4 +1,4 @@
-defmodule ParkingWeb.PaymentControllerTest do
+defmodule ParkingWeb.SettingsControllerTest do
   use ParkingWeb.ConnCase
   alias Parking.Repo
   alias Parking.Sales.{Location, Booking}
