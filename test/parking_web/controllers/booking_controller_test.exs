@@ -105,14 +105,14 @@ defmodule ParkingWeb.BookingControllerTest do
         location_id: to_string(location.id),
         start_time: "2017-09-28T18:31:32.223Z",
         end_time: "2017-09-28T19:31:32.223Z",
-        pricing_type: "hourly"
+        pricing_type: "realtime"
       })
 
       conn = post(conn, Routes.booking_path(conn, :create), %{
         location_id: to_string(location.id),
         start_time: "2017-09-28T18:31:32.223Z",
         end_time: "2017-09-28T19:31:32.223Z",
-        pricing_type: "hourly"
+        pricing_type: "realtime"
       })
 
       assert json_response(conn, 422)["errors"] != %{}
