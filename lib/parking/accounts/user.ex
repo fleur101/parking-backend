@@ -6,6 +6,7 @@ defmodule Parking.Accounts.User do
   alias Ecto.Changeset
   alias Parking.Repo
   alias Ecto.Multi
+  alias Parking.Accounts.User
 
   schema "users" do
     field :name, :string
@@ -14,6 +15,7 @@ defmodule Parking.Accounts.User do
     field :hashed_password, :string
     field :customer_id, :string
     field :email, :string
+    field :monthly_paying, :boolean
     has_many :bookings, Booking
     has_many :payments, Payment
 
@@ -22,7 +24,7 @@ defmodule Parking.Accounts.User do
 
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :username, :password, :customer_id, :email])
+    |> cast(params, [:name, :username, :password, :customer_id, :email, :monthly_paying])
     |> validate_required([:name, :username, :password])
     |> unique_constraint(:username)
     |> validate_length(:password, min: 8)
@@ -83,5 +85,9 @@ defmodule Parking.Accounts.User do
       :ok -> sourceToken.id
       _ -> nil
     end
+  end
+
+  def toggle_monthly_payments(user) do
+    user |> Changeset.change(%{monthly_paying: !(user.monthly_paying)}) |> Repo.update
   end
 end
