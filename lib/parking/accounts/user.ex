@@ -2,7 +2,7 @@ defmodule Parking.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Parking.Sales.{Booking, Payment}
+  alias Parking.Sales.{Booking, Payment, Location}
   alias Ecto.Changeset
   alias Parking.Repo
   alias Ecto.Multi
@@ -58,6 +58,11 @@ defmodule Parking.Accounts.User do
       :ok -> Multi.new |> Multi.run(:payment, fn _repo, _changes ->
               payment = Payment.create_from(%{amount: (params.amount/100), booking_id: params.booking.id, user_id: params.user.id, stripe_charge_id: charge.id})
               Booking.update_status_to(params.booking, Booking.payment_statuses.paid)
+
+              location_booking = Repo.preload(params.booking, [:location])
+              location = location_booking.location
+
+              Location.make_unavailable(location)
               {:ok, payment}
           end) |> Repo.transaction
       _ -> {:error, ["Failed to make payment"]}

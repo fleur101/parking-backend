@@ -55,7 +55,8 @@ defmodule Parking.Sales.Booking do
       location_id: nearest_location.id,
       start_time: start_time,
       end_time: end_time,
-      pricing_type: pricing_type
+      pricing_type: pricing_type,
+      payment_status: @payment_statuses.pending
     }
   end
 
@@ -67,8 +68,11 @@ defmodule Parking.Sales.Booking do
     if (location && location.is_available) do
       multi_transaction = Multi.new |> Multi.run(:booking, fn _repo, _changes ->
         case Repo.insert(new_booking_struct(user, location, start_time, end_time, pricing_type)) do
-          {:ok, booking} -> Location.make_unavailable(location)
-                            {:ok, Repo.preload(booking, [:location, :user])}
+          {:ok, booking} -> if booking.pricing_type == "realtime" do
+            Booking.update_status_to(booking, @payment_statuses.paid)
+            Location.make_unavailable(location)
+          end
+          {:ok, Repo.preload(booking, [:location, :user])}
           {:error, _} -> {:error, ["Failed to book parking space"]}
         end
       end)
