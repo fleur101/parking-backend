@@ -3,7 +3,6 @@ defmodule ParkingWeb.BookingController do
 
   alias Parking.Guardian
   alias Parking.Sales.Booking
-  alias Parking.Sales
 
   action_fallback ParkingWeb.FallbackController
 

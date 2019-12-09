@@ -6,7 +6,6 @@ defmodule Parking.Accounts.User do
   alias Ecto.Changeset
   alias Parking.Repo
   alias Ecto.Multi
-  alias Parking.Accounts.User
 
   @valid_card_params %{
     exp_month: 10,

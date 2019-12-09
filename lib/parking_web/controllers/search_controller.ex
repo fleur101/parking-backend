@@ -11,38 +11,24 @@ defmodule ParkingWeb.SearchController do
     {:error, errors}
   end
 
-  def search(conn, %{"parking_address" => parking_address, "end_time" => end_time}) do
-    with {:ok, locations} <- Sales.find_parking_spaces(parking_address, end_time) do
+  def search(conn, %{"parking_address" => parking_address} = params) do
+    end_time = params["end_time"]
+    latLng = Parking.Geolocation.find_coordinates(parking_address)
+    with {:ok, locations} <- Sales.find_parking_spaces(latLng, end_time) do
     conn
       |> put_status(200)
-      |> render("search_results.json", locations: locations, end_time: end_time)
+      |> render("search_results.json", locations: locations, end_time: end_time, search_location: latLng)
     end
   end
 
-  def search(conn, %{"parking_address" => parking_address}) do
-    with {:ok, locations} <- Sales.find_parking_spaces(parking_address, nil) do
-    conn
-      |> put_status(200)
-      |> render("search_results.json", locations: locations, end_time: false)
-    end
-  end
-
-  def search(conn, %{"longitude" => lng, "lattitude" => lat, "end_time" => end_time}) do
-    with {:ok, locations} <- Sales.find_parking_spaces_by_location(lat, lng, end_time) do
+  def search(conn, %{"longitude" => lng, "lattitude" => lat} = params) do
+    end_time = params["end_time"]
+    with {:ok, locations} <- Sales.find_parking_spaces(%{lat: lat, lng: lng}, end_time) do
       conn
       |> put_status(200)
-      |> render("search_results.json", locations: locations, end_time: false)
+      |> render("search_results.json", locations: locations, end_time: end_time, search_location: %{lat: lat, lng: lng})
     end
   end
-
-  def search(conn, %{"longitude" => lng, "lattitude" => lat}) do
-    with {:ok, locations} <- Sales.find_parking_spaces_by_location(lat, lng, nil) do
-      conn
-      |> put_status(200)
-      |> render("search_results.json", locations: locations, end_time: false)
-    end
-  end
-
 
   def search(_conn, _) do
     errors = ["invalid request"]
