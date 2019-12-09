@@ -5,7 +5,11 @@ defmodule Parking.Sales do
 
   import Ecto.Query, warn: false
   alias Parking.Repo
+<<<<<<< HEAD
   alias Parking.Sales.{Location, Booking, ParkingSpace, PolygonCoordinates}
+=======
+  alias Parking.Sales.{Location, Booking, ParkingSpace, PolygonCoordinates, Payment}
+>>>>>>> 962cac38b804ec5d65bcc751a4e6066278516c97
   alias Parking.Accounts.User
 
 
@@ -164,6 +168,77 @@ defmodule Parking.Sales do
     Repo.update(changeset)
   end
 
+  def get_monthly_subscriber_bookings() do
+    query = from b in Booking,
+            join: u in User,
+            on: b.user_id == u.id,
+            where: u.monthly_paying == true
+                   and b.payment_status == "paid"
+                   and b.pricing_type == "realtime"
+                   and b.end_time <= ^Timex.now
+
+    bookings = Repo.all(query)
+
+    Enum.filter(bookings, fn booking ->
+      booking_payments = Repo.preload(booking, [:payments])
+      payments = booking_payments.payments
+      length(payments) == 0
+    end)
+  end
+
+  def get_realtime_bookings() do
+    query = from b in Booking,
+            join: u in User,
+            on: b.user_id == u.id,
+            where: u.monthly_paying == false
+                   and b.payment_status == "paid"
+                   and b.pricing_type == "realtime"
+                   and b.end_time <= ^Timex.now
+
+    bookings = Repo.all(query)
+
+    Enum.filter(bookings, fn booking ->
+      booking_payments = Repo.preload(booking, [:payments])
+      payments = booking_payments.payments
+      length(payments) == 0
+    end)
+  end
+
+  def charge_realtime_on_month() do
+    charge_monthly_on(Timex.today)
+  end
+
+  def charge_realtime_on_end() do
+    charge_realtime()
+  end
+
+  def charge_realtime() do
+    pay_for(get_realtime_bookings())
+  end
+
+  def pay_for(bookings) do
+    Enum.each(bookings, fn booking ->
+      booking = Repo.preload(booking, [:user])
+
+      params = %{
+        "stripe_token" => User.test_stripe_token,
+        "booking_id" => booking.id
+      }
+
+      payment = Payment.create_payment_for(booking.user, params)
+      payment
+    end)
+  end
+
+  def charge_monthly_on(date) do
+    today_date = String.split(Date.to_string(date), "-") |> Enum.reverse |> hd
+
+    if today_date == "01" do
+      pay_for(get_monthly_subscriber_bookings())
+    else
+      false
+    end
+  end
 
   def create_payment_extend(user, params) do
     booking = Repo.get!(Booking, (params["booking_id"]))
@@ -178,5 +253,4 @@ defmodule Parking.Sales do
       {:ok, payment}
     end
   end
-
 end
