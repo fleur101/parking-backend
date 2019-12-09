@@ -4,6 +4,16 @@ defmodule Parking.MixProject do
   def project do
     [
       app: :parking,
+      # Add this section...
+      releases: [
+        parkingx: [
+          include_erts: true,
+          include_executables_for: [:unix],
+          applications: [
+            runtime_tools: :permanent
+          ]
+        ]
+      ],
       version: "0.1.0",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
