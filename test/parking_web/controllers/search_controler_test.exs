@@ -7,7 +7,7 @@ defmodule ParkingWeb.SearchControllerTest do
   use Timex
 
   @parking_space_params %{
-    title: "Raatuse 25",
+    title: "Raatuse 22",
   }
 
   @user_attrs %{
@@ -35,8 +35,8 @@ defmodule ParkingWeb.SearchControllerTest do
     polygon_coordinates = [
       %PolygonCoordinates{
         parking_space_id: parking_space.id,
-        latitude: 58.382104,
-        longitude: 26.7295357,
+        latitude: 58.382585,
+        longitude: 26.731022,
       },
     ]
 
@@ -67,7 +67,7 @@ defmodule ParkingWeb.SearchControllerTest do
     end
 
     test "returns all available parking spaces in the distance of 1000 meters", %{conn: conn} do
-      conn = post(conn, Routes.search_path(conn, :search), parking_address: "Raatuse 22")
+      conn = post(conn, Routes.search_path(conn, :search), parking_address: "Comarket")
       assert ([
         %{
           "locations" => [
@@ -78,9 +78,9 @@ defmodule ParkingWeb.SearchControllerTest do
             }
           ],
           "polygon_coordinates" => [
-            %{"lat" => 58.382104, "lng" => 26.7295357}
+            %{"lat" => 58.382585, "lng" => 26.731022}
           ],
-          "title" => "Raatuse 25"
+          "title" => "Raatuse 22"
         }
       ] = json_response(conn, 200))
     end
@@ -90,7 +90,7 @@ defmodule ParkingWeb.SearchControllerTest do
       time_after_hour = Timex.shift(current_time, hours: 1)
       end_time = Timex.format!(time_after_hour, "%FT%T%:z", :strftime)
 
-      conn = post(conn, Routes.search_path(conn, :search), parking_address: "Raatuse 22", end_time: end_time)
+      conn = post(conn, Routes.search_path(conn, :search), parking_address: "Comarket", end_time: end_time)
       assert [
         %{
           "locations" => [
@@ -103,9 +103,9 @@ defmodule ParkingWeb.SearchControllerTest do
             }
           ],
           "polygon_coordinates" => [
-            %{"lat" => 58.382104, "lng" => 26.7295357}
+            %{"lat" => 58.382585, "lng" => 26.731022}
           ],
-          "title" => "Raatuse 25"
+          "title" => "Raatuse 22"
         }
       ] = json_response(conn, 200)
     end
