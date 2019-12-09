@@ -25,9 +25,4 @@ defmodule ParkingWeb.BookingController do
     Enum.all?(required_params, fn required_param -> Map.has_key?(params, required_param) && params[required_param] != nil end)
   end
 
-  def update(conn, %{"id" => id, "end_time" => end_time}) do
-    with {:ok, %Booking{} = booking} <- Sales.extend_parking_time(id, end_time) do
-      conn |> render("create.json", %{booking: booking})
-    end
-  end
 end

@@ -86,6 +86,21 @@ defmodule Parking.Accounts.User do
     end
   end
 
+  def make_payment_extend(params) do
+    {code, charge} = Stripe.Charge.create(%{
+      amount: ceil(params.amount),
+      currency: "EUR",
+      source: params.source
+    })
+
+    case code do
+      :ok ->  payment = Payment.create_from(%{amount: (params.amount/100), booking_id: params.booking.id, user_id: params.user.id, stripe_charge_id: charge.id})
+              Booking.update_status_to(params.booking, Booking.payment_statuses.paid)
+              {:ok, payment}
+      _ -> {:error, ["Failed to make payment"]}
+    end
+  end
+
   def test_stripe_token do
     {code, sourceToken} = Stripe.Token.create(%{
       card: @valid_card_params

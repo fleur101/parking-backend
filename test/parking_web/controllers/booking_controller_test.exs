@@ -118,14 +118,5 @@ defmodule ParkingWeb.BookingControllerTest do
       assert json_response(conn, 422)["errors"] != %{}
     end
 
-    test "Parking time for hourly booking extended until specified end time", %{conn: conn, location: location, user: user} do
-      changeset = Booking.changeset(%Booking{}, @booking_attrs) |> Changeset.put_assoc(:location, location) |> Changeset.put_assoc(:user, user)
-      booking = case Repo.insert(changeset) do
-        {:ok, booking} -> booking
-        {:error, _} -> {:error, ["Failed to book parking space"]}
-      end
-      conn = patch(conn, Routes.booking_path(conn, :update, booking.id), @booking_update_attrs)
-      assert json_response(conn, 200)
-    end
   end
 end

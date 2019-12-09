@@ -2,6 +2,7 @@ defmodule ParkingWeb.PaymentController do
   use ParkingWeb, :controller
 
   alias Parking.Guardian
+  alias Parking.Sales
   alias Parking.Sales.Payment
 
   action_fallback ParkingWeb.FallbackController
@@ -20,6 +21,23 @@ defmodule ParkingWeb.PaymentController do
   end
   def params_present(params) do
     required_params = ["booking_id", "stripe_token"]
+    Enum.all?(required_params, fn required_param -> Map.has_key?(params, required_param) && params[required_param] != nil end)
+  end
+
+  def extend(conn, params) do
+    user = Guardian.Plug.current_resource(conn)
+    if extend_params_present(params) do
+      case Sales.create_payment_extend(user, params) do
+        {:ok, payment} -> conn |> render("create.json", %{payment: payment})
+        {:error, message} -> conn |> put_status(:unprocessable_entity) |> render("error.json", %{errors: message})
+      end
+    else
+      conn |> put_status(:bad_request) |> render("error.json", %{errors: ["Some required parameters are missing"]})
+    end
+  end
+
+  defp extend_params_present(params) do
+    required_params = ["booking_id", "stripe_token", "end_time"]
     Enum.all?(required_params, fn required_param -> Map.has_key?(params, required_param) && params[required_param] != nil end)
   end
 end

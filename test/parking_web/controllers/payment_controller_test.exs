@@ -16,9 +16,8 @@ defmodule ParkingWeb.PaymentControllerTest do
     password: "password"
   }
 
-  @extend_booking_params %{
-    end_time: Booking.format_time("2017-09-28T20:31:32.223Z")
-  }
+  @extend_end_time "2017-09-28T20:31:32.223Z"
+
 
   setup %{conn: conn} do
     Repo.delete_all(Booking)
@@ -46,7 +45,7 @@ defmodule ParkingWeb.PaymentControllerTest do
       pricing_type: "hourly"
     }
 
-    booking = Repo.insert(booking_attrs)
+    {:ok, booking} = Repo.insert(booking_attrs)
 
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
@@ -86,24 +85,24 @@ defmodule ParkingWeb.PaymentControllerTest do
 
     test "Booking extended after valid payment", %{conn: conn, booking: booking} do
       amount = 2.0
-      conn = post(conn, Routes.payment_path(conn, :extend), %{
-        booking_id: Integer.to_string(booking.id),
+      conn = patch(conn, Routes.payment_path(conn, :extend), %{
+        booking_id: booking.id,
         stripe_token: User.test_stripe_token,
-        end_time: @end_time
+        end_time: @extend_end_time
       })
       response = json_response(conn, 200)
 
       booking_updated = Repo.get!(Booking, booking.id)
 
       assert response["amount"] == amount
-      assert(booking_updated.end_time == @end_time)
+      assert(booking_updated.end_time == Booking.format_time(@extend_end_time))
     end
 
     test "Booking not extended after invalid payment", %{conn: conn, booking: booking} do
-      conn = post(conn, Routes.payment_path(conn, :extend), %{
-        booking_id: Integer.to_string(booking.id),
+      conn = patch(conn, Routes.payment_path(conn, :extend), %{
+        booking_id: booking.id,
         stripe_token: User.test_stripe_token_invalid,
-        end_time: @end_time
+        end_time: @extend_end_time
       })
 
       assert json_response(conn, 400)

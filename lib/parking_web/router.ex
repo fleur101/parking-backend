@@ -25,6 +25,7 @@ defmodule ParkingWeb.Router do
     post "/search", SearchController, :search
     resources "/bookings", BookingController, only: [:update]
     post "/locations/booking", BookingController, :create
+    patch "/payments", PaymentController, :extend
     resources "/payments", PaymentController, only: [:create]
     patch "/toggle_monthly", SettingsController, :toggle_monthly
   end
