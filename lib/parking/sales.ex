@@ -166,14 +166,14 @@ defmodule Parking.Sales do
     end
   end
 
-  def get_monthly_subscriber_bookings() do
+  def get_monthly_subscriber_bookings(date) do
     query = from b in Booking,
             join: u in User,
             on: b.user_id == u.id,
             where: u.monthly_paying == true
                    and b.payment_status == "paid"
                    and b.pricing_type == "realtime"
-                   and b.end_time <= ^Timex.now
+                   and b.end_time <= ^date
 
     bookings = Repo.all(query)
 
@@ -230,9 +230,10 @@ defmodule Parking.Sales do
 
   def charge_monthly_on(date) do
     today_date = String.split(Date.to_string(date), "-") |> Enum.reverse |> hd
+    today_datetime = Timex.parse!(Date.to_string(date), "%Y-%m-%d", :strftime)
 
     if today_date == "01" do
-      pay_for(get_monthly_subscriber_bookings())
+      pay_for(get_monthly_subscriber_bookings(today_datetime))
     else
       false
     end
