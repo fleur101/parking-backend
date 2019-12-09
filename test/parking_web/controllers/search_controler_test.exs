@@ -74,6 +74,8 @@ defmodule ParkingWeb.SearchControllerTest do
             %{
               "is_available" => true,
               "pricing_zone" => "A",
+              "hourly_price" => 2,
+              "realtime_price" => 0.16,
               "spot_number" => "Parking Spot 1"
             }
           ],
@@ -82,7 +84,7 @@ defmodule ParkingWeb.SearchControllerTest do
           ],
           "title" => "Raatuse 22"
         }
-      ] = json_response(conn, 200))
+      ] = json_response(conn, 200)["locations"])
     end
 
     test "searches nearby places alongwith price estimations", %{conn: conn} do
@@ -95,10 +97,12 @@ defmodule ParkingWeb.SearchControllerTest do
         %{
           "locations" => [
             %{
-              "hourly_price" => 2.0,
               "is_available" => true,
               "pricing_zone" => "A",
-              "realtime_price" => 1.92,
+              "estimated_hourly_price" => 2.0,
+              "estimated_realtime_price" => 1.92,
+              "hourly_price" => 2,
+              "realtime_price" => 0.16,
               "spot_number" => "Parking Spot 1"
             }
           ],
@@ -107,7 +111,7 @@ defmodule ParkingWeb.SearchControllerTest do
           ],
           "title" => "Raatuse 22"
         }
-      ] = json_response(conn, 200)
+      ] = json_response(conn, 200)["locations"]
     end
   end
 end
