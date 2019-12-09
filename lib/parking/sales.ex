@@ -161,9 +161,7 @@ defmodule Parking.Sales do
   def extend_parking_time(booking_id, end_time) do
     booking = Repo.get!(Booking, booking_id)
     changeset = Booking.changeset(booking, %{end_time: end_time})
-    with {:ok, %Booking{} = booking} = Repo.update(changeset) do
-      {:ok, Repo.preload(booking, [:location, :user])}
-    end
+    Repo.update(changeset)
   end
 
   def get_monthly_subscriber_bookings() do
@@ -235,6 +233,20 @@ defmodule Parking.Sales do
       pay_for(get_monthly_subscriber_bookings())
     else
       false
+    end
+  end
+
+  def create_payment_extend(user, params) do
+    booking = Repo.get!(Booking, (params["booking_id"]))
+    preload_booking = Repo.preload(booking, [:location])
+
+    end_time = Timex.format!(booking.end_time, "%FT%T%:z", :strftime)
+    new_end_time = Timex.format!(Booking.format_time(params["end_time"]), "%FT%T%:z", :strftime)
+    payment = get_hourly_price_of(preload_booking.location, end_time, new_end_time)*100
+
+    with {:ok, payment} = User.make_payment_extend(%{ source: params["stripe_token"], amount: payment, booking: booking, user: user}) do
+      extend_parking_time(booking.id, new_end_time)
+      {:ok, payment}
     end
   end
 end

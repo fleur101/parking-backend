@@ -16,6 +16,9 @@ defmodule ParkingWeb.PaymentControllerTest do
     password: "password"
   }
 
+  @extend_end_time "2017-09-28T20:31:32.223Z"
+
+
   setup %{conn: conn} do
     Repo.delete_all(Booking)
     Repo.delete_all(Location)
@@ -30,11 +33,8 @@ defmodule ParkingWeb.PaymentControllerTest do
       spot_number: "Parking Spot 1",
     }
 
-    Location.changeset(%Location{}, location_params) |> Repo.insert!()
-    User.changeset(%User{}, @user_attrs) |> Repo.insert!()
-
-    location = Repo.one(Location)
-    user = Repo.one(User)
+    location = Location.changeset(%Location{}, location_params) |> Repo.insert!()
+    user = User.changeset(%User{}, @user_attrs) |> Repo.insert!()
 
     booking_attrs = %Booking{
       location_id: location.id,
@@ -45,12 +45,12 @@ defmodule ParkingWeb.PaymentControllerTest do
       pricing_type: "hourly"
     }
 
-    Repo.insert(booking_attrs)
+    {:ok, booking} = Repo.insert(booking_attrs)
 
     {:ok, jwt, _} = Guardian.encode_and_sign(user)
 
     connection = conn |> put_req_header("accept", "application/json") |> put_req_header("authorization", "bearer: " <> jwt)
-    {:ok, conn: connection}
+    {:ok, conn: connection, booking: booking}
   end
 
   describe "POST /api/v1/payments" do
@@ -81,6 +81,34 @@ defmodule ParkingWeb.PaymentControllerTest do
 
       assert response["amount"] == amount
       assert (new_booking_status == "paid" && new_booking_status != booking_status)
+    end
+
+    test "Booking extended after valid payment", %{conn: conn, booking: booking} do
+      amount = 2.0
+      conn = patch(conn, Routes.payment_path(conn, :extend), %{
+        booking_id: booking.id,
+        stripe_token: User.test_stripe_token,
+        end_time: @extend_end_time
+      })
+      response = json_response(conn, 200)
+
+      booking_updated = Repo.get!(Booking, booking.id)
+
+      assert response["amount"] == amount
+      assert(booking_updated.end_time == Booking.format_time(@extend_end_time))
+    end
+
+    test "Booking not extended after invalid payment", %{conn: conn, booking: booking} do
+      conn = patch(conn, Routes.payment_path(conn, :extend), %{
+        booking_id: booking.id,
+        stripe_token: User.test_stripe_token_invalid,
+        end_time: @extend_end_time
+      })
+
+      assert json_response(conn, 400)
+
+      booking_not_updated = Repo.get!(Booking, booking.id)
+      assert(booking_not_updated.end_time == booking.end_time)
     end
   end
 end

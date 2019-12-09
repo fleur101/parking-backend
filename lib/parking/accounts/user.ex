@@ -8,6 +8,21 @@ defmodule Parking.Accounts.User do
   alias Ecto.Multi
   alias Parking.Accounts.User
 
+  @valid_card_params %{
+    exp_month: 10,
+    exp_year: 2020,
+    number: 4242424242424242,
+    cvc: 111
+  }
+
+  @invalid_card_params %{
+    exp_month: 10,
+    exp_year: 2010,
+    number: 4242424242424242,
+    cvc: 111
+  }
+
+
   schema "users" do
     field :name, :string
     field :username, :string
@@ -71,14 +86,35 @@ defmodule Parking.Accounts.User do
     end
   end
 
+  def make_payment_extend(params) do
+    {code, charge} = Stripe.Charge.create(%{
+      amount: ceil(params.amount),
+      currency: "EUR",
+      source: params.source
+    })
+
+    case code do
+      :ok ->  payment = Payment.create_from(%{amount: (params.amount/100), booking_id: params.booking.id, user_id: params.user.id, stripe_charge_id: charge.id})
+              Booking.update_status_to(params.booking, Booking.payment_statuses.paid)
+              {:ok, payment}
+      _ -> {:error, ["Failed to make payment"]}
+    end
+  end
+
   def test_stripe_token do
     {code, sourceToken} = Stripe.Token.create(%{
-      card: %{
-        exp_month: 10,
-        exp_year: 2020,
-        number: 4242424242424242,
-        cvc: 111
-      }
+      card: @valid_card_params
+    })
+
+    case code do
+      :ok -> sourceToken.id
+      _ -> nil
+    end
+  end
+
+  def test_stripe_token_invalid do
+    {code, sourceToken} = Stripe.Token.create(%{
+      card: @invalid_card_params
     })
 
     case code do
