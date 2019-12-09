@@ -20,7 +20,7 @@ defmodule Parking.Worker do
   def handle_info(:work, state) do
     Sales.update_location_statuses()
     Sales.charge_realtime_on_end()
-    #Sales.charge_realtime_on_month()
+    Sales.charge_realtime_on_month()
     Sales.find_extend_candidates()
     |> Enum.each(fn %{id: id, booking_id: bid} -> ParkingWeb.Endpoint.broadcast("driver:" <> Integer.to_string(id) , "requests", %{booking_id: bid, msg: "Your parking time ends in 10 minutes. Would you like to extend your time?"}) end)
     schedule_work()
