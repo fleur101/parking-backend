@@ -145,7 +145,7 @@ defmodule Parking.Sales do
 
   def find_extend_candidates() do
     thresholdTimeUpper = Timex.now |> Timex.add(Timex.Duration.from_minutes(10))
-    thresholdTimeLower = Timex.shift(thresholdTimeUpper, minutes: -1)
+    thresholdTimeLower = Timex.shift(thresholdTimeUpper, seconds: -10)
     results =
             from(b in Booking,
                 where: b.pricing_type == "hourly" and b.end_time <= ^thresholdTimeUpper and b.end_time > ^thresholdTimeLower,
