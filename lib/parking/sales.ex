@@ -5,11 +5,7 @@ defmodule Parking.Sales do
 
   import Ecto.Query, warn: false
   alias Parking.Repo
-<<<<<<< HEAD
-  alias Parking.Sales.{Location, Booking, ParkingSpace, PolygonCoordinates}
-=======
   alias Parking.Sales.{Location, Booking, ParkingSpace, PolygonCoordinates, Payment}
->>>>>>> 962cac38b804ec5d65bcc751a4e6066278516c97
   alias Parking.Accounts.User
 
 
