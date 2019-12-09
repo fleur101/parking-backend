@@ -31,7 +31,7 @@ defmodule Parking.Sales.Booking do
   @doc false
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:pricing_type, :payment_status, :start_time, :end_time])
+    |> cast(params, [:pricing_type, :payment_status, :start_time, :end_time, :user_id, :location_id])
     |> validate_required([:pricing_type, :payment_status, :start_time, :end_time])
   end
 
