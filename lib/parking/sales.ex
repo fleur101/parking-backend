@@ -249,6 +249,6 @@ defmodule Parking.Sales do
 
   def view_bookings(user) do
     preload_user = Repo.preload(user, [:bookings])
-    {:ok, preload_user.bookings}
+    {:ok, preload_user.bookings |> Enum.map(fn booking -> Repo.preload(booking, [:location]) end)}
   end
 end
