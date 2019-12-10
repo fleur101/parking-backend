@@ -10,7 +10,7 @@ defmodule Parking.Geolocation do
   def find_coordinates_range(lat, lng, distInMeters) do
     meterPerLatDegree = 111320
     latDegreeDist = distInMeters/meterPerLatDegree
-    lngDegreeDist = latDegreeDist * :math.cos(lat*:math.pi()/180)
+    lngDegreeDist = latDegreeDist / :math.cos(lat*180/:math.pi())
     lat_south = lat - latDegreeDist
     lat_north = lat + latDegreeDist
     lng_east = lng - lngDegreeDist
