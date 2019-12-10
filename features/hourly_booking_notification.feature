@@ -1,7 +1,7 @@
 Feature: Receiving notification for extending time
     As a user
-    Such that Hourly bookings have been booked on parking location and payment has been already made
-    I want to receive notification 10 minutes before the ending time
+    Such that I have an hourly booking for a parking location and I have already paid for it
+    I want to receive notification 10 minutes before the end time
 
     Scenario: Receiving notification for extending time
         When I log in to the application

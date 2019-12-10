@@ -3,17 +3,17 @@ defmodule Parking.Sales.Booking do
   import Ecto.Changeset
 
   alias Parking.Accounts.User
-  alias Parking.Sales.Location
-  alias Parking.Sales.Booking
   alias Parking.Sales
-  alias Parking.Geolocation
+  alias Parking.Sales.{Location, Booking, Payment}
   alias Parking.Repo
   alias Ecto.Multi
+  alias Ecto.Changeset
 
   use Timex
 
   @payment_statuses %{
-    pending: "pending"
+    pending: "pending",
+    paid: "paid"
   }
 
   schema "bookings" do
@@ -23,6 +23,7 @@ defmodule Parking.Sales.Booking do
     field :start_time, :utc_datetime
     belongs_to :location, Location
     belongs_to :user, User
+    has_many :payments, Payment
 
     timestamps()
   end
@@ -30,7 +31,7 @@ defmodule Parking.Sales.Booking do
   @doc false
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:pricing_type, :payment_status, :start_time, :end_time])
+    |> cast(params, [:pricing_type, :payment_status, :start_time, :end_time, :user_id, :location_id])
     |> validate_required([:pricing_type, :payment_status, :start_time, :end_time])
   end
 
@@ -41,10 +42,9 @@ defmodule Parking.Sales.Booking do
 
   def format_booking_params(params) do
     Map.merge(params, %{
-      latitude: params["latitude"],
-      longitude: params["longitude"],
+      location_id: params["location_id"],
       start_time: format_time(params["start_time"]),
-      end_time: format_time(params["start_time"]),
+      end_time: format_time(params["end_time"]),
       pricing_type: params["pricing_type"]
     })
   end
@@ -55,22 +55,24 @@ defmodule Parking.Sales.Booking do
       location_id: nearest_location.id,
       start_time: start_time,
       end_time: end_time,
-      pricing_type: pricing_type
+      pricing_type: pricing_type,
+      payment_status: @payment_statuses.pending
     }
   end
 
   def create_booking_for(user, params) do
-    %{latitude: latitude, longitude: longitude, start_time: start_time, end_time: end_time, pricing_type: pricing_type} = format_booking_params(params)
+    %{location_id: location_id, start_time: start_time, end_time: end_time, pricing_type: pricing_type} = format_booking_params(params)
 
-    nearest_locations = Location.get_nearest_locations(latitude, longitude)
+    location = Location.find_by_id(location_id)
 
-    if length(nearest_locations) > 0 do
-      near_spot = Location.sort_by_distances(nearest_locations, longitude, latitude) |> hd
-
+    if (location && location.is_available) do
       multi_transaction = Multi.new |> Multi.run(:booking, fn _repo, _changes ->
-        case Repo.insert(new_booking_struct(user, near_spot, start_time, end_time, pricing_type)) do
-          {:ok, booking} -> Location.make_unavailable(near_spot)
-                            {:ok, Repo.preload(booking, [:location, :user])}
+        case Repo.insert(new_booking_struct(user, location, start_time, end_time, pricing_type)) do
+          {:ok, booking} -> if booking.pricing_type == "realtime" do
+            Booking.update_status_to(booking, @payment_statuses.paid)
+            Location.make_unavailable(location)
+          end
+          {:ok, Repo.preload(booking, [:location, :user])}
           {:error, _} -> {:error, ["Failed to book parking space"]}
         end
       end)
@@ -82,8 +84,28 @@ defmodule Parking.Sales.Booking do
         {:error, _} -> {:error, ["Failed to book parking space"]}
       end
     else
-      {:error, ["All nearby locations are already booked"]}
+      {:error, ["This location is not available at the moment"]}
     end
   end
 
+  def update_status_to(booking, new_status) do
+    Booking.changeset(booking) |> Changeset.put_change(:payment_status, new_status) |> Repo.update
+  end
+
+  def payment_statuses do
+    @payment_statuses
+  end
+
+  def calculate_payment(booking) do
+    booking = Repo.preload(booking, [:location])
+    start_time = Timex.format!(booking.start_time, "%FT%T%:z", :strftime)
+    end_time = Timex.format!(booking.end_time, "%FT%T%:z", :strftime)
+
+    euro_price = case booking.pricing_type do
+      "hourly" -> Sales.get_hourly_price_of(booking.location, start_time, end_time)
+      "realtime" -> Sales.get_realtime_price_of(booking.location, start_time, end_time)
+    end
+
+    euro_price * 100
+  end
 end

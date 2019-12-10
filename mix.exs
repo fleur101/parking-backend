@@ -4,6 +4,16 @@ defmodule Parking.MixProject do
   def project do
     [
       app: :parking,
+      # Add this section...
+      releases: [
+        parkingx: [
+          include_erts: true,
+          include_executables_for: [:unix],
+          applications: [
+            runtime_tools: :permanent
+          ]
+        ]
+      ],
       version: "0.1.0",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -49,7 +59,9 @@ defmodule Parking.MixProject do
       {:cors_plug, "~> 2.0"},
       {:httpoison, "~> 1.6"},
       {:poison, "~> 3.1"},
-      {:timex, "~> 3.5"}
+      {:timex, "~> 3.5"},
+      {:hackney, "~> 1.0", override: true},
+      {:stripity_stripe, "~> 2.0.0"}
     ]
   end
 

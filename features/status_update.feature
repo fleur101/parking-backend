@@ -1,9 +1,9 @@
 Feature: Updating booking and parking spot statuses
-    As the booking system
-    Such that Hourly bookings have been booked on parking location
-    I want to update parking statuses
+    As a user
+    Such that I have an hourly booking for a parking location
+    I want the parking status for my booking to be updated two minutes before the parking end time
 
-    Scenario: Make booked hourly space available two minutes before end time
+    Scenario: Make booked hourly space available two minutes before the end time
         Given there is an available parking space
         When I log in to the application
         And I book the parking location on "hourly" rate for "1 hour"

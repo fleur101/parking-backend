@@ -3,13 +3,12 @@ defmodule Parking.Sales.Location do
   use Timex
 
   import Ecto.Changeset
+  import Ecto.Query
 
-  alias Parking.Sales.Booking
-  alias Parking.Sales.Location
+  alias Parking.Sales.{Booking, Location, ParkingSpace}
   alias Parking.Repo
   alias Parking.Geolocation
   alias Ecto.Changeset
-  alias Parking.Sales
 
   @hourly_prices %{
     "A" => 2,
@@ -18,22 +17,29 @@ defmodule Parking.Sales.Location do
 
   @realtime_prices %{
     "A" => 0.16,
-    "B" => 0.8
+    "B" => 0.08
   }
 
+  @range 250.0
+
   schema "locations" do
-    field :latitude, :float
-    field :longitude, :float
     field :pricing_zone, :string
     field :is_available, :boolean
+    field :spot_number, :string
     has_many :bookings, Booking
+    belongs_to :parking_space, ParkingSpace
+
     timestamps()
   end
 
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:longitude, :latitude, :pricing_zone, :is_available])
-    |> validate_required([:longitude, :latitude, :pricing_zone])
+    |> cast(params, [:pricing_zone, :is_available, :parking_space_id, :spot_number])
+    |> validate_required([:pricing_zone, :is_available, :spot_number])
+  end
+
+  def get_range do
+    @range
   end
 
   def get_hourly_price_by(pricing_zone) do
@@ -52,7 +58,13 @@ defmodule Parking.Sales.Location do
     Enum.sort_by(locations, fn (location) -> Geolocation.distance_formula(latitude, location.latitude, longitude, location.longitude) end)
   end
 
-  def get_nearest_locations(latitude, longitude) do
-    Sales.find_parking_spaces_by_coordinates(latitude, longitude, 250.0)
+  def find_by_id_query(id) do
+    from location in Location,
+    where: (location.id == ^id),
+    select: location
+  end
+
+  def find_by_id(id) do
+    Repo.one(find_by_id_query(id))
   end
 end

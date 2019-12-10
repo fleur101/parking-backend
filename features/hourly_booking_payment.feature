@@ -1,11 +1,12 @@
 Feature: Booking payment
     As a user
-    Such that Hourly bookings is being made on parking location
-    I want to make payment 
+    Such that I have an hourly booking for parking location
+    I want to pay for it
 
     Scenario: Pay for the booking
         Given I have an active booking
-        When I navigate to payment page
+        When I log in to the application
+        And I navigate to the payment page
         And I click "Pay for the booking"
         And I enter my credentials
-        Then Booking is payed successfully
+        Then payment for the booking is made successfully
