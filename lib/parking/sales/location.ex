@@ -20,7 +20,7 @@ defmodule Parking.Sales.Location do
     "B" => 0.08
   }
 
-  @range 500.0
+  @range 250.0
 
   schema "locations" do
     field :pricing_zone, :string

@@ -6,8 +6,12 @@ defmodule ParkingWeb.SearchControllerTest do
   alias Parking.Guardian
   use Timex
 
-  @parking_space_params %{
+  @parking_space_params1 %{
     title: "Raatuse 22",
+  }
+
+  @parking_space_params2 %{
+    title: "Liivi 2",
   }
 
   @user_attrs %{
@@ -23,10 +27,18 @@ defmodule ParkingWeb.SearchControllerTest do
     Repo.delete_all(ParkingSpace)
     Repo.delete_all(User)
 
-    parking_space = ParkingSpace.changeset(%ParkingSpace{}, @parking_space_params) |> Repo.insert!()
+    parking_space1 = ParkingSpace.changeset(%ParkingSpace{}, @parking_space_params1) |> Repo.insert!()
+    parking_space2 = ParkingSpace.changeset(%ParkingSpace{}, @parking_space_params2) |> Repo.insert!()
 
-    location_params = %{
-      parking_space_id: parking_space.id,
+    location_params1 = %{
+      parking_space_id: parking_space1.id,
+      is_available: true,
+      pricing_zone: "A",
+      spot_number: "Parking Spot 1",
+    }
+
+    location_params2 = %{
+      parking_space_id: parking_space2.id,
       is_available: true,
       pricing_zone: "A",
       spot_number: "Parking Spot 1",
@@ -34,13 +46,19 @@ defmodule ParkingWeb.SearchControllerTest do
 
     polygon_coordinates = [
       %PolygonCoordinates{
-        parking_space_id: parking_space.id,
+        parking_space_id: parking_space1.id,
         latitude: 58.382585,
         longitude: 26.731022,
       },
+      %PolygonCoordinates{
+        parking_space_id: parking_space2.id,
+        latitude: 58.378231,
+        longitude: 26.7141468,
+      }
     ]
 
-    Location.changeset(%Location{}, location_params) |> Repo.insert!()
+    Location.changeset(%Location{}, location_params1) |> Repo.insert!()
+    Location.changeset(%Location{}, location_params2) |> Repo.insert!()
     Enum.each(polygon_coordinates, fn polygon_coordinate ->
       Repo.insert!(polygon_coordinate)
     end)
@@ -66,7 +84,7 @@ defmodule ParkingWeb.SearchControllerTest do
       assert json_response(conn, 400)["errors"] != %{}
     end
 
-    test "returns all available parking spaces in the distance of 1000 meters", %{conn: conn} do
+    test "returns only available parking spaces in the distance of 250 meters", %{conn: conn} do
       conn = post(conn, Routes.search_path(conn, :search), parking_address: "Comarket")
       assert ([
         %{

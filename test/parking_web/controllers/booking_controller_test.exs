@@ -4,7 +4,6 @@ defmodule ParkingWeb.BookingControllerTest do
   alias Parking.Sales.{Location, Booking, ParkingSpace, PolygonCoordinates}
   alias Parking.Accounts.User
   alias Parking.Guardian
-  alias Ecto.Changeset
 
 
   @parking_space_params %{
@@ -16,16 +15,6 @@ defmodule ParkingWeb.BookingControllerTest do
     email: "zohaibahmedbutt@gmail.com",
     name: "Zohaib Ahmed",
     password: "password"
-  }
-
-  @booking_attrs %{
-    start_time: "2017-09-28T18:31:32.223Z",
-    end_time: "2017-09-28T19:31:32.223Z",
-    pricing_type: "hourly"
-  }
-
-  @booking_update_attrs %{
-    end_time: "2017-09-28T20:31:32.223Z"
   }
 
   setup %{conn: conn} do
@@ -77,9 +66,7 @@ defmodule ParkingWeb.BookingControllerTest do
       assert json_response(conn, 400)["errors"] != %{}
     end
 
-    test "Make a booking", %{conn: conn} do
-      user = Repo.one(User)
-      location = Repo.all(Location) |> hd
+    test "Make a booking with hourly pricing type", %{conn: conn, user: user, location: location} do
       preloaded_user = Repo.preload(user, [:bookings])
 
       user_bookings = length(preloaded_user.bookings)
@@ -89,6 +76,26 @@ defmodule ParkingWeb.BookingControllerTest do
         start_time: "2017-09-28T18:31:32.223Z",
         end_time: "2017-09-28T19:31:32.223Z",
         pricing_type: "hourly"
+      })
+
+      response = json_response(conn, 200)
+      preloaded_user = user |> Repo.preload([:bookings], force: true)
+
+      assert response["booked_by"] == user.name
+      assert length(preloaded_user.bookings) > user_bookings
+    end
+
+
+    test "Make a booking with realtime pricing type", %{conn: conn, user: user, location: location} do
+      preloaded_user = Repo.preload(user, [:bookings])
+
+      user_bookings = length(preloaded_user.bookings)
+
+      conn = post(conn, Routes.booking_path(conn, :create), %{
+        location_id: to_string(location.id),
+        start_time: "2017-09-28T18:31:32.223Z",
+        end_time: "2017-09-28T19:31:32.223Z",
+        pricing_type: "realtime"
       })
 
       response = json_response(conn, 200)
