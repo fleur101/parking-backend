@@ -246,4 +246,9 @@ defmodule Parking.Sales do
       {:ok, payment}
     end
   end
+
+  def view_bookings(user) do
+    preload_user = Repo.preload(user, [:bookings])
+    {:ok, preload_user.bookings}
+  end
 end

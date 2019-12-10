@@ -3,6 +3,7 @@ defmodule ParkingWeb.BookingController do
 
   alias Parking.Guardian
   alias Parking.Sales.Booking
+  alias Parking.Sales
 
   action_fallback ParkingWeb.FallbackController
 
@@ -22,6 +23,13 @@ defmodule ParkingWeb.BookingController do
   def params_present(params) do
     required_params = ["start_time", "end_time", "location_id", "pricing_type"]
     Enum.all?(required_params, fn required_param -> Map.has_key?(params, required_param) && params[required_param] != nil end)
+  end
+
+  def view(conn, _params) do
+    user = Guardian.Plug.current_resource(conn)
+    with  {:ok, bookings} <- Sales.view_bookings(user) do
+      conn |> render("view.json", bookings: bookings)
+    end
   end
 
 end
