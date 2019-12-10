@@ -30,7 +30,7 @@ defmodule ParkingWeb.SettingsControllerTest do
       old_monthly_paying = user.monthly_paying
 
       conn = patch(conn, Routes.settings_path(conn, :toggle_monthly))
-      response = json_response(conn, 200)
+      assert response = json_response(conn, 200)
 
       # IO.inspect response
 
