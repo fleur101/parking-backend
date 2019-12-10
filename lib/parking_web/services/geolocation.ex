@@ -13,8 +13,8 @@ defmodule Parking.Geolocation do
     lngDegreeDist = latDegreeDist / :math.cos(lat*180/:math.pi())
     lat_south = lat - latDegreeDist
     lat_north = lat + latDegreeDist
-    lng_east = lng - lngDegreeDist
-    lng_west = lng + lngDegreeDist
+    lng_west = lng - lngDegreeDist
+    lng_east = lng + lngDegreeDist
     %{lat1: lat_south, lat2: lat_north, lng1: lng_east, lng2: lng_west}
   end
 
