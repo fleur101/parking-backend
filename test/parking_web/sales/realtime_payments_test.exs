@@ -56,6 +56,7 @@ defmodule ParkingWeb.RealtimePaymentsTest do
     }) |> Repo.insert!()
 
     booking = Repo.one(Booking)
+    {:ok, booking, location}
   end
 
   describe "Real Time Payment" do
