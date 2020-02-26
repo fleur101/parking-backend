@@ -8,11 +8,12 @@ database_url =
   System.get_env("DATABASE_URL") || ""
 
 config :parking, Parking.Repo,
-  # ssl: true,
+  ssl: true,
+  url: database_url,
   username: "postgres",
   password: "postgres",
   database: "parkingx",
-  hostname: "35.193.23.247",
+  # hostname: "35.193.23.247",
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
 secret_key_base =

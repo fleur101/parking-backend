@@ -12,6 +12,8 @@ use Mix.Config
 config :parking, ParkingWeb.Endpoint,
   load_from_system_env: true,
   http: [port: {:system, "PORT"}],
+  url: [scheme: "https", host: "tartu-parking-backend.herokuapp.com", port: 443],
+  force_ssl: [rewrite_on: [:x_forwarded_proto]],
   check_origin: false,
   server: true,
   root: ".",
@@ -27,7 +29,7 @@ config :logger, level: :info
 #
 #     config :parking, ParkingWeb.Endpoint,
 #       ...
-#       url: [host: "example.com", port: 443],
+#       url: [host: "tartu-parking-backend.herokuapp.com", port: 443],
 #       https: [
 #         :inet6,
 #         port: 443,
